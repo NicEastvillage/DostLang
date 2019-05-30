@@ -37,8 +37,8 @@ expr
     | left=expr LT right=expr # lessThanExpr
     | left=expr GEQ right=expr # greaterOrEqExpr
     | left=expr GT right=expr # greaterThanExpr
-    | left=expr EQUAL right=expr # equalityExpr
-    | left=expr NOTEQUAL right=expr # inequalityExpr
+    | left=expr EQ right=expr # equalityExpr
+    | left=expr NEQ right=expr # inequalityExpr
     | left=expr AND right=expr # andExpr
     | left=expr OR right=expr # orExpr
     ;
@@ -87,10 +87,10 @@ COLON : ':' ;
 ASSIGN : '=' ;
 GT : '>' ;
 LT : '<' ;
-EQUAL : '==' ;
+EQ : '==' ;
 LEQ : '<=' ;
 GEQ : '>=' ;
-NOTEQUAL : '!=' ;
+NEQ : '!=' ;
 BANG : '!' ;
 AND : '&&' ;
 OR : '||' ;
