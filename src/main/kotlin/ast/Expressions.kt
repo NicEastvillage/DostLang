@@ -25,7 +25,7 @@ class BoolLiteral(
 
 class BinaryExpr(
     ctx: SourceContext,
-    type: Type,
+    type: Type = UncheckedType,
     var left: Node,
     var right: Node,
     val operator: Operator

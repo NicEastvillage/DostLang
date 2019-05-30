@@ -164,17 +164,15 @@ object ErrorLog {
     }
 
     /**
-     * Returns a string consisting of a number of spaces followed by ^. This string is used to point to the exact
-     * position of the error in error messages. E.g. "`      ^^^^^^^`"
+     * Returns a string consisting of a number of spaces followed by a ^. This string is used to point to the exact
+     * position of the error in error messages. E.g. "`      ^`"
      */
     private fun errorPointerString(ctx: SourceContext): String {
         val pointerStringBuilder = StringBuilder()
         repeat(ctx.charPositionInLine) {
             pointerStringBuilder.append(" ")
         }
-        repeat(ctx.text.length) {
-            pointerStringBuilder.append("^")
-        }
+        pointerStringBuilder.append("^")
         return pointerStringBuilder.toString()
     }
 }
