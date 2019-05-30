@@ -1,0 +1,36 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.3.11'
+    id 'antlr'
+}
+
+version '0.0.1-ALPHA'
+
+repositories {
+    mavenCentral()
+}
+
+task run(type: JavaExec) {
+    main = 'dk.eastvillage.dost.MainKt'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+jar {
+    // This line of code recursively collects and copies all of a project's files
+    // and adds them to the JAR itself resulting in a 'fat jar'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    antlr "org.antlr:antlr4:4.7.2"
+    testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
+}
+
+generateGrammarSource {
+    arguments += ["-long-messages", "-package", "dk.eastvillage.dost.antlr"]
+    outputDirectory = file("${project.buildDir}/gen-src/antlr/main/dk/eastvillage/dost/antlr")
+}
+
+sourceSets {
+    main.java.srcDirs += "${project.buildDir}/gen-src/antlr/main"
+}

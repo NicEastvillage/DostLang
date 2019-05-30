@@ -1,0 +1,10 @@
+# project stuff
+.idea/
+*.iml
+
+# gradle cache
+.gradle/
+
+# build folder
+build/
+out/
