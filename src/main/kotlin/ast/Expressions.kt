@@ -4,31 +4,31 @@ import dk.eastvillage.dost.*
 
 
 class Identifier(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var spelling: String,
     type: Type = UncheckedType
 ) : Expr(ctx, type)
 
 class IntLiteral(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var value: Int,
     type: Type = IntegerType
 ) : Expr(ctx, type)
 
 class FloatLiteral(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var value: Float,
     type: Type = FloatType
 ) : Expr(ctx, type)
 
 class BoolLiteral(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var value: Boolean,
     type: Type = BoolType
 ) : Expr(ctx, type)
 
 class BinaryExpr(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var left: Node,
     var right: Node,
     val operator: Operator,
@@ -50,13 +50,13 @@ enum class LogicOperator : Operator {
 }
 
 class NotExpr(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var expr: Expr,
     type: Type = BoolType
 ) : Expr(ctx, type)
 
 class Negation(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var expr: Expr,
     type: Type = UncheckedType
 ) : Expr(ctx, type)

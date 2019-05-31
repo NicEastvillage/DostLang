@@ -3,17 +3,15 @@ package dk.eastvillage.dost.ast
 import dk.eastvillage.dost.SourceContext
 import dk.eastvillage.dost.Type
 
-abstract class Node
-
-abstract class NodeWithCtx(
-    val ctx: SourceContext
-) : Node()
+abstract class Node(
+    val ctx: SourceContext?
+)
 
 abstract class Stmt(
-    ctx: SourceContext
-) : NodeWithCtx(ctx)
+    ctx: SourceContext?
+) : Node(ctx)
 
 abstract class Expr(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var type: Type
-) : NodeWithCtx(ctx)
+) : Node(ctx)

@@ -5,38 +5,38 @@ import dk.eastvillage.dost.Type
 
 
 class StmtBlock(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     val stmts: MutableList<Stmt>
 ) : Stmt(ctx)
 
 class VariableDecl(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var declType: Type,
     var variable: Identifier,
     var expr: Expr
 ) : Stmt(ctx)
 
 class Assignment(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var variable: Identifier,
     var expr: Expr
 ) : Stmt(ctx)
 
 class IfStmt(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var condition: Expr,
     var trueBlock: Stmt,
     var falseBlock: Stmt?
 ) : Stmt(ctx)
 
 class WhileLoop(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var condition: Expr,
     var block: StmtBlock
 ) : Stmt(ctx)
 
 class ForLoop(
-    ctx: SourceContext,
+    ctx: SourceContext?,
     var variable: Identifier,
     var initExpr: Expr,
     var endExpr: Expr,
