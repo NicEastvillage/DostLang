@@ -5,7 +5,7 @@ import java.io.PrintStream
 
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-class PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
+object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
 
     class PrintInfo(
         val out: PrintStream,

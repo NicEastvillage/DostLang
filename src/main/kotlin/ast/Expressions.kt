@@ -4,45 +4,45 @@ import dk.eastvillage.dost.*
 
 
 class Identifier(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var spelling: String,
     type: Type = UncheckedType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class IntLiteral(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var value: Int,
     type: Type = IntegerType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class FloatLiteral(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var value: Float,
     type: Type = FloatType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class BoolLiteral(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var value: Boolean,
     type: Type = BoolType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class BinaryExpr(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var left: Node,
     var right: Node,
     val operator: Operator,
     type: Type = UncheckedType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class NotExpr(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var expr: Expr,
     type: Type = BoolType
-) : Expr(ctx, type)
+) : Expr(sctx, type)
 
 class Negation(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var expr: Expr,
     type: Type = UncheckedType
-) : Expr(ctx, type)
+) : Expr(sctx, type)

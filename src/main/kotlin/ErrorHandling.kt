@@ -5,12 +5,12 @@ import java.util.stream.Stream
 
 /**
  * A Loggable can be logged in the ErrorLog.
- * @param ctx the source context from which this was created
+ * @param sctx the source context from which this was created
  * @param description the description of the logged thing
  * @see ErrorLog
  */
 abstract class Loggable(
-    val ctx: SourceContext?,
+    val sctx: SourceContext?,
     val description: String
 ) : java.lang.RuntimeException(description)
 
@@ -19,14 +19,14 @@ abstract class Loggable(
  * after the current phase is complete.
  * @see ErrorLog
  */
-open class CompileError(ctx: SourceContext?, description: String) : Loggable(ctx, description)
+open class CompileError(sctx: SourceContext?, description: String) : Loggable(sctx, description)
 
 /**
  * A compiler warning. All warnings originates from some context from the source program. Warnings does not
  * stop the compilation.
  * @see ErrorLog
  */
-open class CompileWarning(ctx: SourceContext?, description: String) : Loggable(ctx, description)
+open class CompileWarning(sctx: SourceContext?, description: String) : Loggable(sctx, description)
 
 /**
  * The ErrorLog holds all compile errors so far.
@@ -96,9 +96,9 @@ object ErrorLog {
     private fun printAllVerbosely(type: String, loggables: List<Loggable>, lines: Stream<String>, printStream: PrintStream) {
 
         val sortedErrors = loggables.sortedWith(compareBy<Loggable> {
-            if (it.ctx == null) 0 else it.ctx.lineNumber
+            if (it.sctx == null) 0 else it.sctx.lineNumber
         }.thenBy {
-            if (it.ctx == null) 0 else it.ctx.charPositionInLine
+            if (it.sctx == null) 0 else it.sctx.charPositionInLine
         })
 
         // Line index initialised to 1, as lines are not zero-indexed
@@ -109,16 +109,16 @@ object ErrorLog {
         for (line in lines) {
             var error = sortedErrors[currentErrorIndex]
 
-            while (error.ctx == null || error.ctx!!.lineNumber == currentLineIndex) {
+            while (error.sctx == null || error.sctx!!.lineNumber == currentLineIndex) {
 
                 // Print the error
-                if (error.ctx == null) {
+                if (error.sctx == null) {
                     printStream.println("$type: ${error.description}")
                 } else {
-                    printStream.println("$type at ${error.ctx}: ${error.description}")
+                    printStream.println("$type at ${error.sctx}: ${error.description}")
                     // print the source line and a pointer to the context location
                     printStream.println(line)
-                    printStream.println(errorPointerString(error.ctx!!))
+                    printStream.println(errorPointerString(error.sctx!!))
                 }
 
                 // Check next error. It might be on the same line
@@ -140,16 +140,16 @@ object ErrorLog {
      */
     private fun printAll(type: String, loggables: List<Loggable>, printStream: PrintStream) {
         val sortedErrors = loggables.sortedWith(compareBy<Loggable> {
-            if (it.ctx == null) 0 else it.ctx.lineNumber
+            if (it.sctx == null) 0 else it.sctx.lineNumber
         }.thenBy {
-            if (it.ctx == null) 0 else it.ctx.charPositionInLine
+            if (it.sctx == null) 0 else it.sctx.charPositionInLine
         })
 
         sortedErrors.forEach {
-            if (it.ctx == null) {
+            if (it.sctx == null) {
                 printStream.println("$type: ${it.description}")
             } else {
-                printStream.println("$type at ${it.ctx}: ${it.description}")
+                printStream.println("$type at ${it.sctx.position()}: ${it.description}")
             }
         }
     }
@@ -167,9 +167,9 @@ object ErrorLog {
      * Returns a string consisting of a number of spaces followed by a ^. This string is used to point to the exact
      * position of the error in error messages. E.g. "`      ^`"
      */
-    private fun errorPointerString(ctx: SourceContext): String {
+    private fun errorPointerString(sctx: SourceContext): String {
         val pointerStringBuilder = StringBuilder()
-        repeat(ctx.charPositionInLine) {
+        repeat(sctx.charPositionInLine) {
             pointerStringBuilder.append(" ")
         }
         pointerStringBuilder.append("^")

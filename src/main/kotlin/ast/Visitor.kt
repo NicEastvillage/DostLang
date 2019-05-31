@@ -14,8 +14,8 @@ interface Visitor<D, R> {
 
     fun visit(node: GlobalBlock, data: D): R {
         var result = visit(node.stmts[0], data)
-        for (i in 1 until node.stmts.size - 2) {
-            val newResult = visit(node.stmts[1], data)
+        for (i in 1 until node.stmts.size) {
+            val newResult = visit(node.stmts[i], data)
             result = aggregateResults(result, newResult)
         }
         return result

@@ -4,7 +4,7 @@ import dk.eastvillage.dost.SourceContext
 import dk.eastvillage.dost.Type
 
 abstract class Node(
-    val ctx: SourceContext?
+    val sctx: SourceContext?
 )
 
 abstract class Stmt(
@@ -12,12 +12,12 @@ abstract class Stmt(
 ) : Node(ctx)
 
 abstract class Expr(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var type: Type,
     var parenthesized: Boolean = false
-) : Node(ctx)
+) : Node(sctx)
 
 class GlobalBlock(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     val stmts: MutableList<Stmt>
-) : Node(ctx)
+) : Node(sctx)

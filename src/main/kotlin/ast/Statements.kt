@@ -5,44 +5,44 @@ import dk.eastvillage.dost.Type
 
 
 class StmtBlock(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     val stmts: MutableList<Stmt>
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 class VariableDecl(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var declType: Type,
     var variable: Identifier,
     var expr: Expr
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 class Assignment(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var variable: Identifier,
     var expr: Expr
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 class IfStmt(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var condition: Expr,
     var trueBlock: Stmt,
     var falseBlock: Stmt?
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 class WhileLoop(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var condition: Expr,
     var block: StmtBlock
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 class ForLoop(
-    ctx: SourceContext?,
+    sctx: SourceContext?,
     var variable: Identifier,
     var initExpr: Expr,
     var endExpr: Expr,
     var stepDirection: ForLoopStepDirection,
     var block: StmtBlock
-) : Stmt(ctx)
+) : Stmt(sctx)
 
 enum class ForLoopStepDirection(val spelling: String) {
     UP_TO(".."),
