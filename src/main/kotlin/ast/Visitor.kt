@@ -1,15 +1,27 @@
 package dk.eastvillage.dost.ast
 
 
-interface DostVisitor<D, R> {
+interface Visitor<D, R> {
 
     fun visit(node: Node, data: D): R {
         return when (node) {
             is Stmt -> visit(node, data)
             is Expr -> visit(node, data)
+            is GlobalBlock -> visit(node, data)
             else -> throw AssertionError("Trying to visit unknown NodeWithContext.")
         }
     }
+
+    fun visit(node: GlobalBlock, data: D): R {
+        var result = visit(node.stmts[0], data)
+        for (i in 1 until node.stmts.size - 2) {
+            val newResult = visit(node.stmts[1], data)
+            result = aggregateResults(result, newResult)
+        }
+        return result
+    }
+
+    fun aggregateResults(prev: R, new: R): R = new
 
     fun visit(node: Stmt, data: D): R {
         return when (node) {
@@ -52,7 +64,7 @@ interface DostVisitor<D, R> {
     fun visit(node: Negation, data: D): R
 }
 
-abstract class DostBaseVisitor<D, R>(private val defaultValue: R) : DostVisitor<D, R> {
+abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
 
     override fun visit(node: StmtBlock, data: D): R = defaultValue
     override fun visit(node: VariableDecl, data: D): R = defaultValue

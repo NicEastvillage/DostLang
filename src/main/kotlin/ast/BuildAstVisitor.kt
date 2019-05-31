@@ -22,14 +22,14 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
         }
     }
 
-    override fun visitStmts_block(ctx: DostParser.Stmts_blockContext?): Node {
-        return StmtBlock(
+    override fun visitStart(ctx: DostParser.StartContext?): Node {
+        return GlobalBlock(
             SourceContext(ctx!!),
             collectStmts(ctx.stmts())
         )
     }
 
-    override fun visitStart(ctx: DostParser.StartContext?): Node {
+    override fun visitStmts_block(ctx: DostParser.Stmts_blockContext?): Node {
         return StmtBlock(
             SourceContext(ctx!!),
             collectStmts(ctx.stmts())

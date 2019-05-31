@@ -5,7 +5,7 @@ import java.io.PrintStream
 
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-class PrettyPrinter : DostBaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
+class PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
 
     class PrintInfo(
         val out: PrintStream,
@@ -29,6 +29,13 @@ class PrettyPrinter : DostBaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
             super.visit(node, print)
             print.out.print(")")
         } else super.visit(node, print)
+    }
+
+    override fun visit(node: GlobalBlock, print: PrintInfo) {
+        for (stmt in node.stmts) {
+            visit(stmt, print)
+            print.out.print("\n")
+        }
     }
 
     override fun visit(node: StmtBlock, print: PrintInfo) {

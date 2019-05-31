@@ -16,3 +16,8 @@ abstract class Expr(
     var type: Type,
     var parenthesized: Boolean = false
 ) : Node(ctx)
+
+class GlobalBlock(
+    ctx: SourceContext?,
+    val stmts: MutableList<Stmt>
+) : Node(ctx)
