@@ -11,11 +11,10 @@ import org.antlr.v4.runtime.Token
  */
 data class SourceContext(
     val lineNumber: Int,
-    val charPositionInLine: Int,
-    val text: String
+    val charPositionInLine: Int
 ) {
-    constructor(ctx: ParserRuleContext) : this(ctx.start.line, ctx.start.charPositionInLine, ctx.text)
-    constructor(token: Token) : this(token.line, token.charPositionInLine, token.text)
+    constructor(ctx: ParserRuleContext) : this(ctx.start.line, ctx.start.charPositionInLine)
+    constructor(token: Token) : this(token.line, token.charPositionInLine)
 
     /**
      * Returns a formatted string of the source position
