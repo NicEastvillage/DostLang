@@ -5,30 +5,34 @@ import dk.eastvillage.dost.*
 
 class Identifier(
     ctx: SourceContext,
+    var spelling: String,
     type: Type = UncheckedType
 ) : Expr(ctx, type)
 
 class IntLiteral(
     ctx: SourceContext,
+    var value: Int,
     type: Type = IntegerType
 ) : Expr(ctx, type)
 
 class FloatLiteral(
     ctx: SourceContext,
+    var value: Float,
     type: Type = FloatType
 ) : Expr(ctx, type)
 
 class BoolLiteral(
     ctx: SourceContext,
-    type: Type = BooleanType
+    var value: Boolean,
+    type: Type = BoolType
 ) : Expr(ctx, type)
 
 class BinaryExpr(
     ctx: SourceContext,
-    type: Type = UncheckedType,
     var left: Node,
     var right: Node,
-    val operator: Operator
+    val operator: Operator,
+    type: Type = UncheckedType
 ) : Expr(ctx, type)
 
 sealed class Operator(val leftToRightAssociative: Boolean)
@@ -56,10 +60,12 @@ object OR : LogicOperator(true)
 
 class NotExpr(
     ctx: SourceContext,
-    type: Type = BooleanType
+    var expr: Expr,
+    type: Type = BoolType
 ) : Expr(ctx, type)
 
 class Negation(
     ctx: SourceContext,
+    var expr: Expr,
     type: Type = UncheckedType
 ) : Expr(ctx, type)

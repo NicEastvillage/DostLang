@@ -1,6 +1,7 @@
 package dk.eastvillage.dost.ast
 
 import dk.eastvillage.dost.SourceContext
+import dk.eastvillage.dost.Type
 
 
 class StmtBlock(
@@ -10,6 +11,7 @@ class StmtBlock(
 
 class VariableDecl(
     ctx: SourceContext,
+    var declType: Type,
     var variable: Identifier,
     var expr: Expr
 ) : Stmt(ctx)
@@ -22,14 +24,9 @@ class Assignment(
 
 class IfStmt(
     ctx: SourceContext,
-    var clauses: MutableList<ConditionalBlock>,
-    var elseClause: StmtBlock
-) : Stmt(ctx)
-
-class ConditionalBlock(
-    ctx: SourceContext,
     var condition: Expr,
-    var block: StmtBlock
+    var trueBlock: Stmt,
+    var falseBlock: Stmt?
 ) : Stmt(ctx)
 
 class WhileLoop(

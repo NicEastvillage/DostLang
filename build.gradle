@@ -27,7 +27,7 @@ dependencies {
 }
 
 generateGrammarSource {
-    arguments += ["-long-messages", "-package", "dk.eastvillage.dost.antlr"]
+    arguments += ["-visitor", "-long-messages", "-package", "dk.eastvillage.dost.antlr"]
     outputDirectory = file("${project.buildDir}/gen-src/antlr/main/dk/eastvillage/dost/antlr")
 }
 
