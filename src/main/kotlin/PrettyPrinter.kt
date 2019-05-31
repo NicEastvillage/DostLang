@@ -15,7 +15,7 @@ class PrettyPrinter : DostBaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
         fun printIndent() = out.print(indent.repeat(indentLevel))
         fun incIndentLevel() = indentLevel++
         fun decIndentLevel() =
-            if (--indentLevel < 0) throw AssertionError("Indentation level because negative.") else Unit
+            if (--indentLevel < 0) throw AssertionError("Indentation level became negative.") else Unit
     }
 
     fun print(node: Node, out: PrintStream, indent: String = "    ") {

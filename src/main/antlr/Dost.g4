@@ -12,11 +12,11 @@ stmts
 stmt_end : (NEWLINE | SEMI) ;
 
 stmt
-    : type IDENT ASSIGN expr # variableDecl
-    | IDENT ASSIGN expr # assignment
-    | if_stmt # ifStmt
-    | WHILE LPAREN expr RPAREN stmts_block # whileLoop
-    | for_loop # forLoop
+    : type IDENT ASSIGN expr                # variableDecl
+    | IDENT ASSIGN expr                     # assignment
+    | if_stmt                               # ifStmt
+    | WHILE LPAREN expr RPAREN stmts_block  # whileLoop
+    | for_loop                              # forLoop
     ;
 
 if_stmt : IF LPAREN expr RPAREN stmts_block if_end? ;
@@ -26,24 +26,24 @@ for_loop : FOR LPAREN IDENT COLON init=expr range end=expr RPAREN stmts_block ;
 range : UPTO | UPTOINC | DOWNTO | DOWNTOINC ;
 
 expr
-    : ident=IDENT # identExpr
-    | value=literal # literalExpr
-    | LPAREN value=expr RPAREN # parenExpr
-    | BANG value=expr # notExpr
-    | SUB value=expr # negationExpr
-    | left=expr MOD right=expr # moduloExpr
-    | left=expr DIV right=expr # divisionExpr
-    | left=expr MUL right=expr # multiplictionExpr
-    | left=expr SUB right=expr # substractionExpr
-    | left=expr ADD right=expr # additionExpr
-    | left=expr LEQ right=expr # lessOrEqExpr
-    | left=expr LT right=expr # lessThanExpr
-    | left=expr GEQ right=expr # greaterOrEqExpr
-    | left=expr GT right=expr # greaterThanExpr
-    | left=expr EQ right=expr # equalityExpr
-    | left=expr NEQ right=expr # inequalityExpr
-    | left=expr AND right=expr # andExpr
-    | left=expr OR right=expr # orExpr
+    : ident=IDENT                   # identExpr
+    | value=literal                 # literalExpr
+    | LPAREN value=expr RPAREN      # parenExpr
+    | BANG value=expr               # notExpr
+    | SUB value=expr                # negationExpr
+    | left=expr MOD right=expr      # moduloExpr
+    | left=expr DIV right=expr      # divisionExpr
+    | left=expr MUL right=expr      # multiplictionExpr
+    | left=expr SUB right=expr      # substractionExpr
+    | left=expr ADD right=expr      # additionExpr
+    | left=expr LEQ right=expr      # lessOrEqExpr
+    | left=expr LT right=expr       # lessThanExpr
+    | left=expr GEQ right=expr      # greaterOrEqExpr
+    | left=expr GT right=expr       # greaterThanExpr
+    | left=expr EQ right=expr       # equalityExpr
+    | left=expr NEQ right=expr      # inequalityExpr
+    | left=expr AND right=expr      # andExpr
+    | left=expr OR right=expr       # orExpr
     ;
 
 fun_call : IDENT LPAREN (expr (COMMA expr)* )? RPAREN ;
