@@ -13,5 +13,6 @@ abstract class Stmt(
 
 abstract class Expr(
     ctx: SourceContext?,
-    var type: Type
+    var type: Type,
+    var parenthesized: Boolean = false
 ) : Node(ctx)

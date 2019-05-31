@@ -198,7 +198,9 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     }
 
     override fun visitParenExpr(ctx: DostParser.ParenExprContext?): Node {
-        return ctx!!.expr().accept(this)
+        val expr = ctx!!.expr().accept(this) as Expr
+        expr.parenthesized = true
+        return expr
     }
 
     override fun visitDivisionExpr(ctx: DostParser.DivisionExprContext?): Node {

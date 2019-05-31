@@ -18,7 +18,7 @@ fun main() {
         |for (i : 0 ..= a) {
         |   while (false) { }
         |}
-        |bool b = a != 0
+        |bool b = a != (0)
     """.trimMargin()
 
     runProgram(CharStreams.fromString(source))

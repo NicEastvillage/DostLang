@@ -23,6 +23,14 @@ class PrettyPrinter : DostBaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
         visit(node, print)
     }
 
+    override fun visit(node: Expr, print: PrintInfo) {
+        if (node.parenthesized) {
+            print.out.print("(")
+            super.visit(node, print)
+            print.out.print(")")
+        } else super.visit(node, print)
+    }
+
     override fun visit(node: StmtBlock, print: PrintInfo) {
         print.out.print("{\n")
         print.incIndentLevel()
