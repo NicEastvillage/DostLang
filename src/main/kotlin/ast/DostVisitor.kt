@@ -3,7 +3,7 @@ package dk.eastvillage.dost.ast
 
 interface DostVisitor<D, R> {
 
-    private fun visit(node: Node, data: D): R {
+    fun visit(node: Node, data: D): R {
         return when (node) {
             is Stmt -> visit(node, data)
             is Expr -> visit(node, data)
@@ -11,7 +11,7 @@ interface DostVisitor<D, R> {
         }
     }
 
-    private fun visit(node: Stmt, data: D): R {
+    fun visit(node: Stmt, data: D): R {
         return when (node) {
             is StmtBlock -> visit(node, data)
             is VariableDecl -> visit(node, data)
@@ -23,7 +23,7 @@ interface DostVisitor<D, R> {
         }
     }
 
-    private fun visit(node: Expr, data: D): R {
+    fun visit(node: Expr, data: D): R {
         return when (node) {
             is Identifier -> visit(node, data)
             is IntLiteral -> visit(node, data)
@@ -52,7 +52,7 @@ interface DostVisitor<D, R> {
     fun visit(node: Negation, data: D): R
 }
 
-class DostBaseVisitor<D, R>(private val defaultValue: R) : DostVisitor<D, R> {
+abstract class DostBaseVisitor<D, R>(private val defaultValue: R) : DostVisitor<D, R> {
 
     override fun visit(node: StmtBlock, data: D): R = defaultValue
     override fun visit(node: VariableDecl, data: D): R = defaultValue

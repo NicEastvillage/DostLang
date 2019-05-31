@@ -32,5 +32,5 @@ fun runProgram(source: CharStream) {
     val parser = DostParser(tokenStream)
     val ast = BuildAstVisitor().visit(parser.start())
 
-    println(ast)
+    PrettyPrinter().print(ast, System.out)
 }

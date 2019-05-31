@@ -44,6 +44,9 @@ class ForLoop(
     var block: StmtBlock
 ) : Stmt(ctx)
 
-enum class ForLoopStepDirection {
-    UP_TO, UP_TO_INC, DOWN_TO, DOWN_TO_INC
+enum class ForLoopStepDirection(val spelling: String) {
+    UP_TO(".."),
+    UP_TO_INC("..="),
+    DOWN_TO("``"),
+    DOWN_TO_INC("``=")
 }

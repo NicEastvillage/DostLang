@@ -35,20 +35,6 @@ class BinaryExpr(
     type: Type = UncheckedType
 ) : Expr(ctx, type)
 
-interface Operator
-enum class ArithmeticOperator : Operator {
-    ADD, SUB, MUL, DIV, MOD
-}
-enum class EqualityOperator : Operator {
-    EQ, NEQ
-}
-enum class ComparisonOperator : Operator {
-    GT, LT, LEQ, GEQ
-}
-enum class LogicOperator : Operator {
-    AND, OR
-}
-
 class NotExpr(
     ctx: SourceContext?,
     var expr: Expr,

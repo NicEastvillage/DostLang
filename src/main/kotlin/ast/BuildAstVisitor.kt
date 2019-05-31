@@ -141,7 +141,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.NEQ().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            EqualityOperator.NEQ
+            Operators.NEQ
         )
     }
 
@@ -157,7 +157,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.MOD().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ArithmeticOperator.MOD
+            Operators.MOD
         )
     }
 
@@ -166,7 +166,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.GEQ().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ComparisonOperator.GEQ
+            Operators.GEQ
         )
     }
 
@@ -175,7 +175,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.ADD().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ArithmeticOperator.ADD
+            Operators.ADD
         )
     }
 
@@ -184,7 +184,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.LT().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ComparisonOperator.LT
+            Operators.LT
         )
     }
 
@@ -193,7 +193,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.OR().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            LogicOperator.OR
+            Operators.OR
         )
     }
 
@@ -206,7 +206,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.DIV().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ArithmeticOperator.DIV
+            Operators.DIV
         )
     }
 
@@ -226,7 +226,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.GT().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ComparisonOperator.GT
+            Operators.GT
         )
     }
 
@@ -246,7 +246,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.MUL().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ArithmeticOperator.MUL
+            Operators.MUL
         )
     }
 
@@ -255,7 +255,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.SUB().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ArithmeticOperator.SUB
+            Operators.SUB
         )
     }
 
@@ -264,7 +264,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.LEQ().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            ComparisonOperator.LEQ
+            Operators.LEQ
         )
     }
 
@@ -273,7 +273,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.EQ().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            EqualityOperator.EQ
+            Operators.EQ
         )
     }
 
@@ -282,7 +282,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             SourceContext(ctx!!.AND().symbol),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
-            LogicOperator.AND
+            Operators.AND
         )
     }
 
