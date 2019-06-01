@@ -14,14 +14,14 @@ fun main() {
 
     val source = """
         |var a = 5
-        |if (b > 0) {
+        |if (a > 0) {
         |   a = a * 2 * (a - 1 + 1)
         |   var a = 0
         |}
-        |for (i : 0 ..= c) {
+        |for (i : 0 ..= a) {
         |   while (i == -1) { }
         |}
-        |var a = a != (0)
+        |var b = (a != (0)) && true
     """.trimMargin()
 
     tryCompile(CharStreams.fromString(source))
@@ -34,17 +34,15 @@ fun tryCompile(source: CharStream) {
     } catch (e: TerminatedCompilationException) {
 
         System.err.println("Compilation failed!")
-        System.err.println("Printing errors (${ErrorLog.allErrors().size}) ...")
+        System.err.println("Printing errors (${ErrorLog.allErrors().size}) and warnings (${ErrorLog.allWarnings().size}) ...")
         ErrorLog.printAllErrors()
-        System.err.println("Printing warnings (${ErrorLog.allWarnings().size}) ...")
         ErrorLog.allErrors()
 
     } catch (e: RuntimeException) {
 
         System.err.println("Compiler crashed!")
-        System.err.println("Printing errors (${ErrorLog.allErrors().size}) ...")
+        System.err.println("Printing errors (${ErrorLog.allErrors().size}) and warnings (${ErrorLog.allWarnings().size}) ...")
         ErrorLog.printAllErrors()
-        System.err.println("Printing warnings (${ErrorLog.allWarnings().size}) ...")
         ErrorLog.allErrors()
         e.printStackTrace()
     }

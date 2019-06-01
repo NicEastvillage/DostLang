@@ -1,8 +1,8 @@
 package dk.eastvillage.dost.ast
 
 import dk.eastvillage.dost.SourceContext
-import dk.eastvillage.dost.Type
-import dk.eastvillage.dost.UncheckedType
+import dk.eastvillage.dost.contextual.Type
+import dk.eastvillage.dost.contextual.UncheckedType
 
 
 class StmtBlock(

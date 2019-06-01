@@ -1,7 +1,7 @@
 package dk.eastvillage.dost.ast
 
 import dk.eastvillage.dost.SourceContext
-import dk.eastvillage.dost.Type
+import dk.eastvillage.dost.contextual.Type
 
 abstract class Node(
     val sctx: SourceContext?

@@ -1,6 +1,7 @@
 package dk.eastvillage.dost.ast
 
 import dk.eastvillage.dost.*
+import dk.eastvillage.dost.contextual.*
 
 
 class Identifier(
@@ -29,8 +30,8 @@ class BoolLiteral(
 
 class BinaryExpr(
     sctx: SourceContext?,
-    var left: Node,
-    var right: Node,
+    var left: Expr,
+    var right: Expr,
     val operator: Operator,
     type: Type = UncheckedType
 ) : Expr(sctx, type)
@@ -46,3 +47,9 @@ class Negation(
     var expr: Expr,
     type: Type = UncheckedType
 ) : Expr(sctx, type)
+
+// -------------- Conversion expressions
+
+class IntToFloatConversion(
+    var expr: Expr
+) : Expr(expr.sctx, FloatType)
