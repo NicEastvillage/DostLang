@@ -19,7 +19,7 @@ fun main() {
         |   var a = 0
         |}
         |for (i : 0 ..= a) {
-        |   while (i == -1) { }
+        |   while (i == -1.0) { }
         |}
         |var b = (a != (0)) && true
     """.trimMargin()

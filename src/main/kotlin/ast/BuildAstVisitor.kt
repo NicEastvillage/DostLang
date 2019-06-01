@@ -285,7 +285,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitLiteral(ctx: DostParser.LiteralContext?): Node {
         return when {
             ctx!!.INUM() != null -> IntLiteral(SourceContext(ctx), ctx.INUM().text.toInt())
-            ctx.FNUM() != null -> FloatLiteral(SourceContext(ctx), ctx.INUM().text.toFloat())
+            ctx.FNUM() != null -> FloatLiteral(SourceContext(ctx), ctx.FNUM().text.toFloat())
             ctx.TRUE() != null -> BoolLiteral(SourceContext(ctx), true)
             ctx.FALSE() != null -> BoolLiteral(SourceContext(ctx), false)
             else -> throw AssertionError("Unknown literal.")
