@@ -17,6 +17,7 @@ stmt
     | if_stmt                               # ifStmt
     | WHILE LPAREN expr RPAREN stmts_block  # whileLoop
     | for_loop                              # forLoop
+    | PRINT expr                            # printStmt
     ;
 
 if_stmt : IF LPAREN expr RPAREN stmts_block if_end? ;
@@ -63,6 +64,7 @@ FUN : 'fun' ;
 RETURN : 'return' ;
 FOR : 'for' ;
 WHILE : 'while' ;
+PRINT : 'print' ;
 TRUE : 'true' ;
 FALSE : 'false' ;
 

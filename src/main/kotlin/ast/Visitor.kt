@@ -31,6 +31,7 @@ interface Visitor<D, R> {
             is IfStmt -> visit(node, data)
             is ForLoop -> visit(node, data)
             is WhileLoop -> visit(node, data)
+            is PrintStmt -> visit(node, data)
             else -> throw AssertionError("Trying to visit unknown Stmt.")
         }
     }
@@ -54,6 +55,7 @@ interface Visitor<D, R> {
     fun visit(node: IfStmt, data: D): R
     fun visit(node: ForLoop, data: D): R
     fun visit(node: WhileLoop, data: D): R
+    fun visit(node: PrintStmt, data: D): R
 
     fun visit(node: Identifier, data: D): R
     fun visit(node: IntLiteral, data: D): R
@@ -72,6 +74,7 @@ abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
     override fun visit(node: IfStmt, data: D): R = defaultValue
     override fun visit(node: ForLoop, data: D): R = defaultValue
     override fun visit(node: WhileLoop, data: D): R = defaultValue
+    override fun visit(node: PrintStmt, data: D): R = defaultValue
     override fun visit(node: Identifier, data: D): R = defaultValue
     override fun visit(node: IntLiteral, data: D): R = defaultValue
     override fun visit(node: FloatLiteral, data: D): R = defaultValue

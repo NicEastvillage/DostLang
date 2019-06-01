@@ -91,6 +91,10 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
         visit(node.block, ctx)
     }
 
+    override fun visit(node: PrintStmt, ctx: Context) {
+        visit(node.expr, ctx)
+    }
+
     override fun visit(node: Identifier, ctx: Context) {
         val decl = ctx.identTable[node.spelling]
         node.type = when (decl) {

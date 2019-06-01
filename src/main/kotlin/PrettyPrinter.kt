@@ -90,6 +90,11 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
         visit(node.block, print)
     }
 
+    override fun visit(node: PrintStmt, print: PrintInfo) {
+        print.out.print("print ")
+        visit(node.expr, print)
+    }
+
     override fun visit(node: Identifier, print: PrintInfo) {
         print.out.print(node.spelling)
     }

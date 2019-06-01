@@ -22,6 +22,8 @@ fun main() {
         |   while (i == -1.0) { }
         |}
         |var b = (a != (0)) && true
+        |print a
+        |print b
     """.trimMargin()
 
     tryCompile(CharStreams.fromString(source))

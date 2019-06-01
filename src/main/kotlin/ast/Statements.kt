@@ -51,3 +51,8 @@ enum class ForLoopStepDirection(val spelling: String) {
     DOWN_TO("``"),
     DOWN_TO_INC("``=")
 }
+
+class PrintStmt(
+    sctx: SourceContext?,
+    var expr: Expr
+) : Stmt(sctx)

@@ -126,6 +126,13 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     }
 
+    override fun visitPrintStmt(ctx: DostParser.PrintStmtContext?): Node {
+        return PrintStmt(
+            SourceContext(ctx!!),
+            ctx.expr().accept(this) as Expr
+        )
+    }
+
     override fun visitInequalityExpr(ctx: DostParser.InequalityExprContext?): Node {
         return BinaryExpr(
             SourceContext(ctx!!.NEQ().symbol),
