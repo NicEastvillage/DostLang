@@ -49,7 +49,7 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
     }
 
     override fun visit(node: VariableDecl, ctx: Context) {
-        ctx.identTable[node.variable.spelling] = node //TODO Redeclaration fail points to type, not identifier
+        ctx.identTable[node.variable.spelling] = node
         visit(node.expr, ctx)
         node.inferredType = node.expr.type
     }
