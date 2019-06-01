@@ -2,6 +2,7 @@ package dk.eastvillage.dost.ast
 
 import dk.eastvillage.dost.SourceContext
 import dk.eastvillage.dost.Type
+import dk.eastvillage.dost.UncheckedType
 
 
 class StmtBlock(
@@ -11,9 +12,9 @@ class StmtBlock(
 
 class VariableDecl(
     sctx: SourceContext?,
-    var declType: Type,
     var variable: Identifier,
-    var expr: Expr
+    var expr: Expr,
+    var inferredType: Type = UncheckedType
 ) : Stmt(sctx)
 
 class Assignment(

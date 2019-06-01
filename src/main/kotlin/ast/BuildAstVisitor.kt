@@ -3,7 +3,7 @@ package dk.eastvillage.dost.ast
 import dk.eastvillage.dost.*
 import dk.eastvillage.dost.antlr.DostBaseVisitor
 import dk.eastvillage.dost.antlr.DostParser
-import org.antlr.v4.runtime.tree.TerminalNode
+import org.antlr.v4.runtime.Token
 import java.lang.AssertionError
 
 
@@ -55,25 +55,15 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitVariableDecl(ctx: DostParser.VariableDeclContext?): Node {
         return VariableDecl(
             SourceContext(ctx!!),
-            getType(ctx.type()),
-            identFrom(ctx.IDENT()),
+            identFrom(ctx.variable),
             ctx.expr().accept(this) as Expr
         )
-    }
-
-    private fun getType(type: DostParser.TypeContext): Type {
-        return when {
-            type.INT() != null -> IntegerType
-            type.FLOAT() != null -> FloatType
-            type.BOOL() != null -> BoolType
-            else -> throw AssertionError("Unknown type.")
-        }
     }
 
     override fun visitAssignment(ctx: DostParser.AssignmentContext?): Node {
         return Assignment(
             SourceContext(ctx!!),
-            identFrom(ctx.IDENT()),
+            identFrom(ctx.IDENT().symbol),
             ctx.expr().accept(this) as Expr
         )
     }
@@ -113,7 +103,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitFor_loop(ctx: DostParser.For_loopContext?): Node {
         return ForLoop(
             SourceContext(ctx!!),
-            identFrom(ctx.IDENT()),
+            identFrom(ctx.IDENT().symbol),
             ctx.init.accept(this) as Expr,
             ctx.end.accept(this) as Expr,
             getStepDirection(ctx.range()),
@@ -213,12 +203,12 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     }
 
     override fun visitIdentExpr(ctx: DostParser.IdentExprContext?): Node {
-        return identFrom(ctx!!.IDENT())
+        return identFrom(ctx!!.IDENT().symbol)
     }
 
-    private fun identFrom(id: TerminalNode): Identifier {
+    private fun identFrom(id: Token): Identifier {
         return Identifier(
-            SourceContext(id.symbol),
+            SourceContext(id),
             id.text
         )
     }
@@ -300,9 +290,5 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             ctx.FALSE() != null -> BoolLiteral(SourceContext(ctx), false)
             else -> throw AssertionError("Unknown literal.")
         }
-    }
-
-    override fun visitType(ctx: DostParser.TypeContext?): Node {
-        throw AssertionError("Should not be visited.")
     }
 }

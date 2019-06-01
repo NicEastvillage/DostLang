@@ -2,12 +2,12 @@
 
 var a = 23 						// type inference
 
-fun foo (int v) {               // fun decl, but actually just a var-declaration
+fun foo (int v) {               // fun decl, but actually just a const-declaration, which allows for recursion
 	print "Parameter: " + v
 }
 
 foo(5)
-foo = fun (int v) {
+foo = fun (int v) {				// var-decl to declare function, recursion not possible
 	print "Value:" + (v + a)
 }
 
@@ -16,17 +16,17 @@ bar(5)
 
 
 var arr = [10 int] 					// empty int array with size of 10
-arr = [(5 + a) int]				// dynamically alocated array of size (5 + a)
-arr = [5 int : 45, 3, 1, 4, 0]  // array of size 5 with values
-arr = [5 int :: i * 2 ] 		// array of size 5 with an expressen generating values, i is index
+arr = [(5 + a) int]					// dynamically alocated array of size (5 + a)
+arr = [5 int : 45, 3, 1, 4, 0]  	// array of size 5 with values
+arr = [5 int :: i * 2 ] 			// array of size 5 with an expressen generating values, i is index
 var length = #arr 					// #arr evaluate to size of arr
 var first = arr[0]
 var last = arr[-1]
 arr[5] = foo(first)
 
 for (x : 0 .. #arr) {				// #arr is excluded
-	for (y : 0 ..= 9) {			// 9 is included
-		first++					// this is a statement, not an expression
+	for (y : 0 ..= 9) {				// 9 is included
+		first++						// this is a statement, not an expression ?
 
 		for (z : 10 ``= 0)  {		// count down instead, 0 included
 			a--
@@ -52,7 +52,7 @@ fun twice (int -> () baz, int v) {
 }
 
 twice(foo)
-twice(fun (int v) int { a += 2 })
+twice(fun (int v) int { a = a + 2 })
 
 fun ping () int {
 	return pong()			// Not okay, since 'pong' is unclared

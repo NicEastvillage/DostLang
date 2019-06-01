@@ -52,7 +52,7 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
     }
 
     override fun visit(node: VariableDecl, print: PrintInfo) {
-        print.out.print("${node.declType.name} ${node.variable.spelling} = ")
+        print.out.print("var ${node.variable.spelling} = ")
         visit(node.expr, print)
     }
 

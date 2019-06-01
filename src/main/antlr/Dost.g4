@@ -12,8 +12,8 @@ stmts
 stmt_end : (NEWLINE | SEMI) ;
 
 stmt
-    : type IDENT ASSIGN expr                # variableDecl
-    | IDENT ASSIGN expr                     # assignment
+    : VAR variable=IDENT ASSIGN expr        # variableDecl
+    | variable=IDENT ASSIGN expr            # assignment
     | if_stmt                               # ifStmt
     | WHILE LPAREN expr RPAREN stmts_block  # whileLoop
     | for_loop                              # forLoop
@@ -55,22 +55,14 @@ literal
     | FALSE
     ;
 
-type
-    : INT
-    | FLOAT
-    | BOOL
-    ;
 
-
+VAR : 'var' ;
 IF : 'if' ;
 ELSE : 'else' ;
 FUN : 'fun' ;
 RETURN : 'return' ;
 FOR : 'for' ;
 WHILE : 'while' ;
-INT : 'int' ;
-FLOAT : 'float' ;
-BOOL : 'bool' ;
 TRUE : 'true' ;
 FALSE : 'false' ;
 

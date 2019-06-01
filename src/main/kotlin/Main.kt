@@ -13,14 +13,15 @@ fun main() {
     println("Hello world")
 
     val source = """
-        |int a = 5
+        |var a = 5
         |if (b > 0) {
         |   a = a * 2 * (a - 1 + 1)
+        |   var a = 0
         |}
         |for (i : 0 ..= c) {
         |   while (i == -1) { }
         |}
-        |bool a = a != (0)
+        |var a = a != (0)
     """.trimMargin()
 
     tryCompile(CharStreams.fromString(source))
