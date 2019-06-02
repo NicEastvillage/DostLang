@@ -23,7 +23,7 @@ stmt
 if_stmt : IF LPAREN expr RPAREN stmts_block if_end? ;
 if_end : NEWLINE* ELSE (if_stmt | stmts_block);
 
-for_loop : FOR LPAREN IDENT COLON init=expr range end=expr RPAREN stmts_block ;
+for_loop : FOR LPAREN IDENT IN init=expr range end=expr RPAREN stmts_block ;
 range : UPTO | UPTOINC | DOWNTO | DOWNTOINC ;
 
 expr
@@ -63,6 +63,7 @@ ELSE : 'else' ;
 FUN : 'fun' ;
 RETURN : 'return' ;
 FOR : 'for' ;
+IN : 'in' ;
 WHILE : 'while' ;
 PRINT : 'print' ;
 TRUE : 'true' ;

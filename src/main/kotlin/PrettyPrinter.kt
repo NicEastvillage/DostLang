@@ -75,7 +75,7 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
     override fun visit(node: ForLoop, print: PrintInfo) {
         print.out.print("for (")
         visit(node.variable, print)
-        print.out.print(" : ")
+        print.out.print(" in ")
         visit(node.initExpr, print)
         print.out.print(" ${node.stepDirection.spelling} ")
         visit(node.endExpr, print)

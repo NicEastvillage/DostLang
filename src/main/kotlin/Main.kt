@@ -19,7 +19,7 @@ fun main() {
         |   a = a * 2 * (a - 1 + 1)
         |   var a = 0
         |}
-        |for (i : 0 ..= a) {
+        |for (i in 0 ..= a) {
         |   while (i == -1.0) { }
         |}
         |var b = (a != (0)) && true
