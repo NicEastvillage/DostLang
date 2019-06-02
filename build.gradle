@@ -7,6 +7,7 @@ version '0.0.1-ALPHA'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 task run(type: JavaExec) {
@@ -23,6 +24,7 @@ jar {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     antlr "org.antlr:antlr4:4.7.2"
+    compile 'net.dv8tion:JDA:3.8.3_463'
     testImplementation("org.junit.jupiter:junit-jupiter:5.4.1")
 }
 
