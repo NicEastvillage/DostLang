@@ -188,4 +188,12 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
             }
         }
     }
+
+    override fun visit(node: IntToFloatConversion, data: Context) {
+        visit(node.expr, data)
+        if (node.expr.type != IntegerType && node.expr.type != ErrorType) {
+            ErrorLog += TypeError(node.sctx, "Cannot convert expression of type ${node.expr.type} to type ${FloatType.name}.")
+        }
+        node.type = FloatType
+    }
 }

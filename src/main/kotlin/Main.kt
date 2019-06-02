@@ -4,6 +4,7 @@ import dk.eastvillage.dost.antlr.DostLexer
 import dk.eastvillage.dost.antlr.DostParser
 import dk.eastvillage.dost.ast.BuildAstVisitor
 import dk.eastvillage.dost.contextual.ContextualAnalysisVisitor
+import dk.eastvillage.dost.interpreter.Interpreter
 import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
@@ -59,9 +60,13 @@ fun compile(source: CharStream) {
     val ast = BuildAstVisitor().visit(parser.start())
     ErrorLog.assertNoErrors()
 
+    println("~~~~~~~~~~~ Pretty printer ~~~~~~~~~~~~~")
     PrettyPrinter.print(ast, System.out)
 
     // Contextual analysis
     ContextualAnalysisVisitor.analyse(ast)
     ErrorLog.assertNoErrors()
+
+    println("~~~~~~~~~ Interpreter output ~~~~~~~~~~~")
+    Interpreter(System.out).start(ast)
 }

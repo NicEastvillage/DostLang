@@ -126,4 +126,8 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
         print.out.print("-")
         visit(node.expr, print)
     }
+
+    override fun visit(node: IntToFloatConversion, print: PrintInfo) {
+        visit(node, print)
+    }
 }

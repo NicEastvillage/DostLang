@@ -45,6 +45,7 @@ interface Visitor<D, R> {
             is BinaryExpr -> visit(node, data)
             is NotExpr -> visit(node, data)
             is Negation -> visit(node, data)
+            is IntToFloatConversion -> visit(node, data)
             else -> throw AssertionError("Trying to visit unknown Expr.")
         }
     }
@@ -64,6 +65,7 @@ interface Visitor<D, R> {
     fun visit(node: BinaryExpr, data: D): R
     fun visit(node: NotExpr, data: D): R
     fun visit(node: Negation, data: D): R
+    fun visit(node: IntToFloatConversion, data: D): R
 }
 
 abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
@@ -82,4 +84,5 @@ abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
     override fun visit(node: BinaryExpr, data: D): R = defaultValue
     override fun visit(node: NotExpr, data: D): R = defaultValue
     override fun visit(node: Negation, data: D): R = defaultValue
+    override fun visit(node: IntToFloatConversion, data: D): R = defaultValue
 }
