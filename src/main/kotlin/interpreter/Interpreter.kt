@@ -122,7 +122,15 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
     }
 
     override fun visit(node: BinaryExpr, data: Unit): Any {
-        // All binary expressions are left-associative, so we can this first
+        // Short-circuit logic operators
+        if (node.operator is LogicOperator) {
+            when (node.operator) {
+                AND -> return (visit(node.left, Unit) as Boolean) && (visit(node.right, Unit) as Boolean)
+                OR -> return (visit(node.left, Unit) as Boolean) || (visit(node.right, Unit) as Boolean)
+            }
+        }
+
+        // All non-short-circuiting binary expressions are left-associative, so we can this first without problems
         val lv = visit(node.left, Unit)
         val rv = visit(node.right, Unit)
 
@@ -166,11 +174,6 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
                     IntegerType -> return (lv as Int) >= (rv as Int)
                     FloatType -> return (lv as Float) >= (rv as Float)
                 }
-            }
-            // TODO Short circuiting?
-            is LogicOperator -> when (node.operator) {
-                AND -> return (lv as Boolean) && (rv as Boolean)
-                OR -> return (lv as Boolean) || (rv as Boolean)
             }
             is EqualityOperator -> when (node.operator) {
                 EQ -> return lv == rv
