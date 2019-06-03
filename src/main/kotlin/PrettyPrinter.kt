@@ -111,6 +111,10 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
         print.out.print(node.value)
     }
 
+    override fun visit(node: StringLiteral, print: PrintInfo) {
+        print.out.print("\"${node.value}\"")
+    }
+
     override fun visit(node: BinaryExpr, print: PrintInfo) {
         visit(node.left, print)
         print.out.print(" ${node.operator.spelling} ")
@@ -128,6 +132,10 @@ object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
     }
 
     override fun visit(node: IntToFloatConversion, print: PrintInfo) {
+        visit(node, print)
+    }
+
+    override fun visit(node: AnyToStringConversion, print: PrintInfo) {
         visit(node, print)
     }
 }

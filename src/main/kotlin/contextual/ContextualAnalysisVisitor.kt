@@ -131,13 +131,14 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
 
         when (node.operator) {
             is ArithmeticOperator -> {
-                if (type != FloatType && type != IntegerType) {
-                    ErrorLog += ArithmeticTypeError(node)
-                    node.type = ErrorType
-                } else {
+                // Note addition is allowed for strings as concatenation
+                if (type == FloatType || type == IntegerType || (node.operator == Operators.ADD && type == StringType)) {
                     node.left = convertExpr(node.left, type)
                     node.right = convertExpr(node.right, type)
                     node.type = type
+                } else {
+                    ErrorLog += ArithmeticTypeError(node)
+                    node.type = ErrorType
                 }
             }
             is ComparisonOperator -> {
@@ -189,11 +190,17 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
         }
     }
 
-    override fun visit(node: IntToFloatConversion, data: Context) {
-        visit(node.expr, data)
+    override fun visit(node: IntToFloatConversion, ctx: Context) {
+        visit(node.expr, ctx)
         if (node.expr.type != IntegerType && node.expr.type != ErrorType) {
             ErrorLog += TypeError(node.sctx, "Cannot convert expression of type ${node.expr.type} to type ${FloatType.name}.")
         }
         node.type = FloatType
+    }
+
+    override fun visit(node: AnyToStringConversion, ctx: Context) {
+        // All values can be converted to a string
+        visit(node.expr, ctx)
+        node.type = StringType
     }
 }

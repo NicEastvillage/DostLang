@@ -54,6 +54,7 @@ literal
     | FNUM
     | TRUE
     | FALSE
+    | STRING
     ;
 
 
@@ -107,10 +108,15 @@ UPTOINC : '..=' ;
 DOWNTO : '``' ;
 DOWNTOINC : '``=' ;
 
-INUM : [1-9][0-9]* | [0] ;
-FNUM : INUM '.' [0-9]* ;
-NEWLINE : ('\r'? '\n' | '\r') ;
-
 WHITESPACE : [ \t\u000C]+ -> skip ;
 COMMENT : '/*' .*? '*/' -> channel(HIDDEN) ;
 LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN) ;
+
+INUM : [1-9][0-9]* | [0] ;
+FNUM : INUM '.' [0-9]* ;
+STRING : '"' STRING_CHAR* '"' ;
+STRING_CHAR : ~["\\\n] | '\\' [tn"\\] ; // All characters except newlines and backslaces, unless they are written as '\n' and '\\'. '\t' and '\"'are also an accepted characters.
+
+NEWLINE : ('\r'? '\n' | '\r') ;
+
+

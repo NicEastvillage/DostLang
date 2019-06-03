@@ -17,6 +17,7 @@ import dk.eastvillage.dost.ast.Operators.OR
 import dk.eastvillage.dost.ast.Operators.SUB
 import dk.eastvillage.dost.contextual.FloatType
 import dk.eastvillage.dost.contextual.IntegerType
+import dk.eastvillage.dost.contextual.StringType
 import java.io.PrintStream
 
 
@@ -101,7 +102,16 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
     }
 
     override fun visit(node: PrintStmt, data: Unit): Any {
-        printStream.println(visit(node.expr, Unit))
+        if (node.expr.type == StringType) {
+            val str = (visit(node.expr, Unit) as String)
+                .replace("\\\"", "\"")
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+                .replace("\\\\", "\\")
+            printStream.println(str)
+        } else {
+            printStream.println(visit(node.expr, Unit))
+        }
         return Unit
     }
 
@@ -118,6 +128,10 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
     }
 
     override fun visit(node: BoolLiteral, data: Unit): Any {
+        return node.value
+    }
+
+    override fun visit(node: StringLiteral, data: Unit): Any {
         return node.value
     }
 
@@ -139,6 +153,7 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
                 ADD -> when (node.type) {
                     IntegerType -> return (lv as Int) + (rv as Int)
                     FloatType -> return (lv as Float) + (rv as Float)
+                    StringType -> return (lv as String) + (rv as String)
                 }
                 SUB -> when (node.type) {
                     IntegerType -> return (lv as Int) - (rv as Int)
@@ -195,5 +210,9 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
 
     override fun visit(node: IntToFloatConversion, data: Unit): Any {
         return (visit(node.expr, Unit) as Int).toFloat()
+    }
+
+    override fun visit(node: AnyToStringConversion, data: Unit): Any {
+        return visit(node.expr, Unit).toString()
     }
 }

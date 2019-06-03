@@ -295,6 +295,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             ctx.FNUM() != null -> FloatLiteral(SourceContext(ctx), ctx.FNUM().text.toFloat())
             ctx.TRUE() != null -> BoolLiteral(SourceContext(ctx), true)
             ctx.FALSE() != null -> BoolLiteral(SourceContext(ctx), false)
+            ctx.STRING() != null -> StringLiteral(SourceContext(ctx), ctx.text.drop(1).dropLast(1))
             else -> throw AssertionError("Unknown literal.")
         }
     }

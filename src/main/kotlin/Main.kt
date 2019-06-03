@@ -17,11 +17,23 @@ import java.lang.RuntimeException
 
 
 fun main(args: Array<String>) {
-    if (args.size != 1) {
-        println("Needs one argument (bot token)")
+    if (args.isEmpty()) {
+        println("Needs one argument ('bot-token'), or two ('test [pretty]')")
     } else {
-        val jda = JDABuilder(args[0]).build()
-        jda.addEventListener(MessageListener())
+        if (args[0] == "test") {
+            val source = """
+                |print "Hello world"
+                |print "hey\tyou\nthere!"
+                |print "concat: " + 5 + true
+                |print 12 + 4
+            """.trimMargin()
+            val pretty = args.size == 2 && args[1] == "pretty"
+            tryCompile(CharStreams.fromString(source), System.out, pretty)
+
+        } else {
+            val jda = JDABuilder(args[0]).build()
+            jda.addEventListener(MessageListener())
+        }
     }
 }
 
@@ -61,6 +73,8 @@ class MessageListener : ListenerAdapter() {
                         val result = tryCompileToString(source, false)
                         event.channel.sendMessage("```$result```").queue()
                     }
+
+                    ErrorLog.reset()
                 }
             }
         }

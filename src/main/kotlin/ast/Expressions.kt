@@ -12,21 +12,23 @@ class Identifier(
 
 class IntLiteral(
     sctx: SourceContext?,
-    var value: Int,
-    type: Type = IntegerType
-) : Expr(sctx, type)
+    var value: Int
+) : Expr(sctx, IntegerType)
 
 class FloatLiteral(
     sctx: SourceContext?,
-    var value: Float,
-    type: Type = FloatType
-) : Expr(sctx, type)
+    var value: Float
+) : Expr(sctx, FloatType)
 
 class BoolLiteral(
     sctx: SourceContext?,
-    var value: Boolean,
-    type: Type = BoolType
-) : Expr(sctx, type)
+    var value: Boolean
+) : Expr(sctx, BoolType)
+
+class StringLiteral(
+    sctx: SourceContext?,
+    var value: String
+) : Expr(sctx, StringType)
 
 class BinaryExpr(
     sctx: SourceContext?,
@@ -53,3 +55,7 @@ class Negation(
 class IntToFloatConversion(
     var expr: Expr
 ) : Expr(expr.sctx, FloatType)
+
+class AnyToStringConversion(
+    var expr: Expr
+) : Expr(expr.sctx, StringType)
