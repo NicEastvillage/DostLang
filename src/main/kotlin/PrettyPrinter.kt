@@ -5,137 +5,140 @@ import java.io.PrintStream
 
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-object PrettyPrinter : BaseVisitor<PrettyPrinter.PrintInfo, Unit>(Unit) {
+class PrettyPrinter(
+    private val settings: CompilationSettings
+) : BaseVisitor<Unit, Unit>(Unit) {
 
-    class PrintInfo(
-        val out: PrintStream,
-        private var indentLevel: Int = 0,
-        val indent: String = "    "
-    ) {
-        fun printIndent() = out.print(indent.repeat(indentLevel))
-        fun incIndentLevel() = indentLevel++
-        fun decIndentLevel() =
-            if (--indentLevel < 0) throw AssertionError("Indentation level became negative.") else Unit
+    private val indent: String = "    "
+    
+    private var indentLevel: Int = 0
+    
+    private fun print(str: String) = settings.stdout.print(str)
+    
+    private fun indent() = print(indent.repeat(indentLevel))
+    
+    private fun incIndentLevel() = indentLevel++
+
+    private fun decIndentLevel() =
+        if (--indentLevel < 0) throw AssertionError("Indentation level became negative.") else Unit
+
+    fun start(node: Node) {
+        visit(node, Unit)
     }
 
-    fun print(node: Node, out: PrintStream, indent: String = "    ") {
-        val print = PrintInfo(out, indent = indent)
-        visit(node, print)
-    }
-
-    override fun visit(node: Expr, print: PrintInfo) {
+    override fun visit(node: Expr, data: Unit) {
         if (node.parenthesized) {
-            print.out.print("(")
-            super.visit(node, print)
-            print.out.print(")")
-        } else super.visit(node, print)
+            print("(")
+            super.visit(node, Unit)
+            print(")")
+        } else super.visit(node, Unit)
     }
 
-    override fun visit(node: GlobalBlock, print: PrintInfo) {
+    override fun visit(node: GlobalBlock, data: Unit) {
         for (stmt in node.stmts) {
-            visit(stmt, print)
-            print.out.print("\n")
+            visit(stmt, Unit)
+            print("\n")
         }
     }
 
-    override fun visit(node: StmtBlock, print: PrintInfo) {
-        print.out.print("{\n")
-        print.incIndentLevel()
+    override fun visit(node: StmtBlock, data: Unit) {
+        print("{\n")
+        incIndentLevel()
         for (stmt in node.stmts) {
-            print.printIndent()
-            visit(stmt, print)
-            print.out.print("\n")
+            indent()
+            visit(stmt, Unit)
+            print("\n")
         }
-        print.decIndentLevel()
-        print.printIndent()
-        print.out.print("}")
+        decIndentLevel()
+        indent()
+        print("}")
     }
 
-    override fun visit(node: VariableDecl, print: PrintInfo) {
-        print.out.print("var ${node.variable.spelling} = ")
-        visit(node.expr, print)
+    override fun visit(node: VariableDecl, data: Unit) {
+        print("var ${node.variable.spelling} = ")
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: Assignment, print: PrintInfo) {
-        print.out.print("${node.variable.spelling} = ")
-        visit(node.expr, print)
+    override fun visit(node: Assignment, data: Unit) {
+        print("${node.variable.spelling} = ")
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: IfStmt, print: PrintInfo) {
-        print.out.print("if (")
-        visit(node.condition, print)
-        print.out.print(") ")
-        visit(node.trueBlock, print)
+    override fun visit(node: IfStmt, data: Unit) {
+        print("if (")
+        visit(node.condition, Unit)
+        print(") ")
+        visit(node.trueBlock, Unit)
         if (node.falseBlock != null) {
-            print.out.print(" else ")
-            visit(node.falseBlock as Stmt, print)
+            print(" else ")
+            visit(node.falseBlock as Stmt, Unit)
         }
     }
 
-    override fun visit(node: ForLoop, print: PrintInfo) {
-        print.out.print("for (")
-        visit(node.variable, print)
-        print.out.print(" in ")
-        visit(node.initExpr, print)
-        print.out.print(" ${node.stepDirection.spelling} ")
-        visit(node.endExpr, print)
-        print.out.print(") ")
-        visit(node.block, print)
+    override fun visit(node: ForLoop, data: Unit) {
+        print("for (")
+        visit(node.variable, Unit)
+        print(" in ")
+        visit(node.initExpr, Unit)
+        print(" ${node.stepDirection.spelling} ")
+        visit(node.endExpr, Unit)
+        print(") ")
+        visit(node.block, Unit)
     }
 
-    override fun visit(node: WhileLoop, print: PrintInfo) {
-        print.out.print("while (")
-        visit(node.condition, print)
-        print.out.print(") ")
-        visit(node.block, print)
+    override fun visit(node: WhileLoop, data: Unit) {
+        print("while (")
+        visit(node.condition, Unit)
+        print(") ")
+        visit(node.block, Unit)
     }
 
-    override fun visit(node: PrintStmt, print: PrintInfo) {
-        print.out.print("print ")
-        visit(node.expr, print)
+    override fun visit(node: PrintStmt, data: Unit) {
+        print("print ")
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: Identifier, print: PrintInfo) {
-        print.out.print(node.spelling)
+    override fun visit(node: Identifier, data: Unit) {
+        print(node.spelling)
     }
 
-    override fun visit(node: IntLiteral, print: PrintInfo) {
-        print.out.print(node.value)
+    override fun visit(node: IntLiteral, data: Unit) {
+        print(node.value)
     }
 
-    override fun visit(node: FloatLiteral, print: PrintInfo) {
-        print.out.print(node.value)
+    override fun visit(node: FloatLiteral, data: Unit) {
+        print(node.value)
     }
 
-    override fun visit(node: BoolLiteral, print: PrintInfo) {
-        print.out.print(node.value)
+    override fun visit(node: BoolLiteral, data: Unit) {
+        print(node.value)
     }
 
-    override fun visit(node: StringLiteral, print: PrintInfo) {
-        print.out.print("\"${node.value}\"")
+    override fun visit(node: StringLiteral, data: Unit) {
+        print("\"${node.value}\"")
     }
 
-    override fun visit(node: BinaryExpr, print: PrintInfo) {
-        visit(node.left, print)
-        print.out.print(" ${node.operator.spelling} ")
-        visit(node.right, print)
+    override fun visit(node: BinaryExpr, data: Unit) {
+        visit(node.left, Unit)
+        print(" ${node.operator.spelling} ")
+        visit(node.right, Unit)
     }
 
-    override fun visit(node: NotExpr, print: PrintInfo) {
-        print.out.print("!")
-        visit(node.expr, print)
+    override fun visit(node: NotExpr, data: Unit) {
+        print("!")
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: Negation, print: PrintInfo) {
-        print.out.print("-")
-        visit(node.expr, print)
+    override fun visit(node: Negation, data: Unit) {
+        print("-")
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: IntToFloatConversion, print: PrintInfo) {
-        visit(node, print)
+    override fun visit(node: IntToFloatConversion, data: Unit) {
+        visit(node, Unit)
     }
 
-    override fun visit(node: AnyToStringConversion, print: PrintInfo) {
-        visit(node, print)
+    override fun visit(node: AnyToStringConversion, data: Unit) {
+        visit(node, Unit)
     }
 }

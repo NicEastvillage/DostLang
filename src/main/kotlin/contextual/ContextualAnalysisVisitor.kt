@@ -1,9 +1,6 @@
 package dk.eastvillage.dost.contextual
 
-import dk.eastvillage.dost.CompileError
-import dk.eastvillage.dost.ErrorLog
-import dk.eastvillage.dost.SourceContext
-import dk.eastvillage.dost.TerminatedCompilationException
+import dk.eastvillage.dost.*
 import dk.eastvillage.dost.ast.*
 
 
@@ -16,7 +13,7 @@ class NotReassignableError(sctx: SourceContext?, ident: String, decl: Node) :
 open class TypeError(sctx: SourceContext?, description: String) : CompileError(sctx, description)
 
 class IncompatibleTypesError(sctx: SourceContext?, type1: Type, type2: Type) :
-    TypeError(sctx, "${type1.name} and $type2 are incompatible types.")
+    TypeError(sctx, "${type1.name} and ${type2.name} are incompatible types.")
 
 class ArithmeticTypeError(binaryExpr: BinaryExpr) :
     TypeError(binaryExpr.sctx, "Cannot do arithmetic operation '${binaryExpr.operator.spelling}' " +
@@ -29,94 +26,115 @@ class LogicTypeError(binaryExpr: BinaryExpr) :
 
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
-object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context, Unit>(Unit) {
+class ContextualAnalysisVisitor(
+    val settings: CompilationSettings,
+    val info: CompilationInfo
+) : BaseVisitor<Unit, Unit>(Unit) {
 
-    class Context(
-        val identTable: IdentTable = IdentTable()
-    )
+    val identTable: IdentTable = IdentTable()
 
     fun analyse(node: Node) {
-        val ctx = Context()
-        visit(node, ctx)
+        visit(node, Unit)
     }
 
-    override fun visit(node: StmtBlock, ctx: Context) {
-        ctx.identTable.openScope()
-        for (stmt in node.stmts) {
-            visit(stmt, ctx)
+    private fun convertExpr(expr: Expr, type: Type): Expr {
+        return when {
+            expr.type == type -> expr
+            expr.type == IntegerType && type == FloatType -> IntToFloatConversion(expr)
+            type == StringType -> AnyToStringConversion(expr) // All values can be converted to a string
+            type == ErrorType -> expr
+            else -> {
+                info.errors += ImplicitConversionError(expr, type)
+                expr
+            }
         }
-        ctx.identTable.closeScope()
     }
 
-    override fun visit(node: VariableDecl, ctx: Context) {
-        ctx.identTable[node.variable.spelling] = node
-        visit(node.expr, ctx)
+    override fun visit(node: StmtBlock, data: Unit) {
+        identTable.openScope()
+        for (stmt in node.stmts) {
+            visit(stmt, Unit)
+        }
+        identTable.closeScope()
+    }
+
+    override fun visit(node: VariableDecl, data: Unit) {
+        visit(node.expr, Unit)
         node.inferredType = node.expr.type
+        try {
+            identTable[node.variable.spelling] = node
+        } catch (e: RedeclarationException) {
+            info.errors += e.error
+        }
     }
 
-    override fun visit(node: Assignment, ctx: Context) {
-        visit(node.expr, ctx)
-        val decl = ctx.identTable[node.variable.spelling]
+    override fun visit(node: Assignment, data: Unit) {
+        visit(node.expr, Unit)
+        val decl = identTable[node.variable.spelling]
         when (decl) {
-            null -> ErrorLog += UndeclaredIdentError(node.variable.sctx, node.variable.spelling)
+            null -> info.errors += UndeclaredIdentError(node.variable.sctx, node.variable.spelling)
             is VariableDecl -> {
                 node.expr = convertExpr(node.expr, decl.inferredType)
             }
-            else -> ErrorLog += NotReassignableError(node.variable.sctx, node.variable.spelling, decl)
+            else -> info.errors += NotReassignableError(node.variable.sctx, node.variable.spelling, decl)
         }
     }
 
-    override fun visit(node: IfStmt, ctx: Context) {
-        visit(node.condition, ctx)
+    override fun visit(node: IfStmt, data: Unit) {
+        visit(node.condition, Unit)
         node.condition = convertExpr(node.condition, BoolType)
-        visit(node.trueBlock, ctx)
-        node.falseBlock?.let { visit(it, ctx) }
+        visit(node.trueBlock, Unit)
+        node.falseBlock?.let { visit(it, Unit) }
     }
 
-    override fun visit(node: ForLoop, ctx: Context) {
-        visit(node.initExpr, ctx)
+    override fun visit(node: ForLoop, data: Unit) {
+        visit(node.initExpr, Unit)
         node.initExpr = convertExpr(node.initExpr, IntegerType)
-        visit(node.endExpr, ctx)
+        visit(node.endExpr, Unit)
         node.endExpr = convertExpr(node.endExpr, IntegerType)
 
-        ctx.identTable.openScope()
-        ctx.identTable[node.variable.spelling] = node
-        visit(node.block, ctx)
-        ctx.identTable.closeScope()
+        identTable.openScope()
+        try {
+            identTable[node.variable.spelling] = node
+        } catch (e: RedeclarationException) {
+            info.errors += e.error
+        }
+        visit(node.block, Unit)
+        identTable.closeScope()
     }
 
-    override fun visit(node: WhileLoop, ctx: Context) {
-        visit(node.condition, ctx)
+    override fun visit(node: WhileLoop, data: Unit) {
+        visit(node.condition, Unit)
         node.condition = convertExpr(node.condition, BoolType)
-        visit(node.block, ctx)
+        visit(node.block, Unit)
     }
 
-    override fun visit(node: PrintStmt, ctx: Context) {
-        visit(node.expr, ctx)
+    override fun visit(node: PrintStmt, data: Unit) {
+        visit(node.expr, Unit)
     }
 
-    override fun visit(node: Identifier, ctx: Context) {
-        val decl = ctx.identTable[node.spelling]
+    override fun visit(node: Identifier, data: Unit) {
+        val decl = identTable[node.spelling]
         node.type = when (decl) {
             is VariableDecl -> decl.inferredType
             is ForLoop -> IntegerType
             null -> {
-                ErrorLog += UndeclaredIdentError(node.sctx, node.spelling)
+                info.errors += UndeclaredIdentError(node.sctx, node.spelling)
                 ErrorType
             }
             else -> throw TerminatedCompilationException("Identifier referred to unknown or illegal declaration: ${decl.javaClass}")
         }
     }
 
-    override fun visit(node: BinaryExpr, ctx: Context) {
-        visit(node.left, ctx)
-        visit(node.right, ctx)
+    override fun visit(node: BinaryExpr, data: Unit) {
+        visit(node.left, Unit)
+        visit(node.right, Unit)
 
         val type = generalizeTypes(node.left.type, node.right.type)
 
         // Bad types
         if (type == null) {
-            ErrorLog += IncompatibleTypesError(node.sctx, node.left.type, node.right.type)
+            info.errors += IncompatibleTypesError(node.sctx, node.left.type, node.right.type)
             // All binary expressions except arithmetic returns bool. We will do that, even if there's an error
             if (node.operator is ArithmeticOperator) {
                 node.type = ErrorType
@@ -137,13 +155,13 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
                     node.right = convertExpr(node.right, type)
                     node.type = type
                 } else {
-                    ErrorLog += ArithmeticTypeError(node)
+                    info.errors += ArithmeticTypeError(node)
                     node.type = ErrorType
                 }
             }
             is ComparisonOperator -> {
                 if (type != FloatType && type != IntegerType) {
-                    ErrorLog += ArithmeticTypeError(node)
+                    info.errors += ArithmeticTypeError(node)
                     node.type = ErrorType
                 } else {
                     node.left = convertExpr(node.left, type)
@@ -153,7 +171,7 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
             }
             is LogicOperator -> {
                 if (type != BoolType) {
-                    ErrorLog += LogicTypeError(node)
+                    info.errors += LogicTypeError(node)
                     node.type = ErrorType
                 } else {
                     node.left = convertExpr(node.left, BoolType)
@@ -171,36 +189,36 @@ object ContextualAnalysisVisitor : BaseVisitor<ContextualAnalysisVisitor.Context
         }
     }
 
-    override fun visit(node: NotExpr, ctx: Context) {
-        visit(node.expr, ctx)
+    override fun visit(node: NotExpr, data: Unit) {
+        visit(node.expr, Unit)
         convertExpr(node.expr, BoolType)
         node.type = BoolType
     }
 
-    override fun visit(node: Negation, ctx: Context) {
-        visit(node.expr, ctx)
+    override fun visit(node: Negation, data: Unit) {
+        visit(node.expr, Unit)
         when (node.expr.type) {
             IntegerType, FloatType, ErrorType -> {
                 node.type = node.expr.type
             }
             else -> {
-                ErrorLog += TypeError(node.sctx, "Cannot negate expression of type ${node.expr.type}.")
+                info.errors += TypeError(node.sctx, "Cannot negate expression of type ${node.expr.type}.")
                 node.type = ErrorType
             }
         }
     }
 
-    override fun visit(node: IntToFloatConversion, ctx: Context) {
-        visit(node.expr, ctx)
+    override fun visit(node: IntToFloatConversion, data: Unit) {
+        visit(node.expr, Unit)
         if (node.expr.type != IntegerType && node.expr.type != ErrorType) {
-            ErrorLog += TypeError(node.sctx, "Cannot convert expression of type ${node.expr.type} to type ${FloatType.name}.")
+            info.errors += TypeError(node.sctx, "Cannot convert expression of type ${node.expr.type} to type ${FloatType.name}.")
         }
         node.type = FloatType
     }
 
-    override fun visit(node: AnyToStringConversion, ctx: Context) {
+    override fun visit(node: AnyToStringConversion, data: Unit) {
         // All values can be converted to a string
-        visit(node.expr, ctx)
+        visit(node.expr, Unit)
         node.type = StringType
     }
 }

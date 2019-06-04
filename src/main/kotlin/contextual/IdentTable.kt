@@ -4,6 +4,7 @@ import dk.eastvillage.dost.CompileError
 import dk.eastvillage.dost.ErrorLog
 import dk.eastvillage.dost.SourceContext
 import dk.eastvillage.dost.ast.Node
+import java.lang.RuntimeException
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -27,7 +28,7 @@ class IdentTable {
     operator fun set(ident: String, decl: Node) {
         val table = tableStack.peek()
         if (table.contains(ident)) {
-            ErrorLog += ReclarationError(decl.sctx, ident)
+            throw RedeclarationException(RedeclarationError(decl.sctx, ident))
         } else {
             table[ident] = decl
         }
@@ -41,4 +42,5 @@ class IdentTable {
     }
 }
 
-class ReclarationError(sctx: SourceContext?, ident: String) : CompileError(sctx, "'$ident' has already been declared.")
+class RedeclarationError(sctx: SourceContext?, ident: String) : CompileError(sctx, "'$ident' has already been declared.")
+class RedeclarationException(val error: RedeclarationError) : RuntimeException(error.message)

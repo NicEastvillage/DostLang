@@ -25,10 +25,15 @@ fun main(args: Array<String>) {
                 |print "Hello world"
                 |print "hey\tyou\nthere!"
                 |print "concat: " + 5 + true
-                |print 12 + 4
+                |print 12 + 4 / 0
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
-            tryCompile(CharStreams.fromString(source), System.out, pretty)
+            tryCompile(
+                CompilationSettings(
+                    source = CharStreams.fromString(source),
+                    doPrettyPrinting = pretty
+                )
+            )
 
         } else {
             val jda = JDABuilder(args[0]).build()
@@ -65,69 +70,48 @@ class MessageListener : ListenerAdapter() {
                     }
 
                     // Run compiler
-                    if (pretty) {
-                        val result = tryCompileToString(source, true)
-                        event.channel.sendMessage("This is how I understand that piece of code:\n```$result```").queue()
+                    try {
+                        val stdoutBaos = ByteArrayOutputStream()
+                        val stderrBaos = ByteArrayOutputStream()
+                        val stdoutStream = PrintStream(stdoutBaos, true, "UTF-8")
+                        val stderrStream = PrintStream(stderrBaos, true, "UTF-8")
 
-                    } else {
-                        val result = tryCompileToString(source, false)
-                        event.channel.sendMessage("```$result```").queue()
+                        val info = tryCompile(
+                            CompilationSettings(
+                                source = CharStreams.fromString(source),
+                                doPrettyPrinting = pretty,
+                                stdout = stdoutStream,
+                                stderr = stderrStream
+                            )
+                        )
+
+                        val outString = String(stdoutBaos.toByteArray())
+                        val errString = String(stderrBaos.toByteArray())
+
+                        when (info.termination) {
+                            TerminationTime.CORRECTLY -> if (pretty) {
+                                event.channel.sendMessage("This is how I understand that piece of code:\n```$outString```").queue()
+                            } else {
+                                event.channel.sendMessage("```$outString```").queue()
+                            }
+                            TerminationTime.DURING_PARSING -> {
+                                event.channel.sendMessage("Failed to parse that piece of code :(").queue()
+                            }
+                            TerminationTime.DURING_ANALYSIS -> {
+                                event.channel.sendMessage("Compilation failed!\n```$errString```").queue()
+                            }
+                            TerminationTime.DURING_INTERPRETATION -> {
+                                event.channel.sendMessage("Interpretation runtime error!\n```$errString```").queue()
+                            }
+                        }
+
+                    } catch (e: Exception) {
+                        System.err.print("Failed replying to message.")
+                        e.printStackTrace()
                     }
 
-                    ErrorLog.reset()
                 }
             }
         }
     }
-}
-
-fun tryCompileToString(source: String, pretty: Boolean = false): String {
-    val baos = ByteArrayOutputStream()
-    PrintStream(baos, true, "UTF-8").use {
-            out -> tryCompile(CharStreams.fromString(source), out, pretty)
-    }
-    return String(baos.toByteArray())
-}
-
-fun tryCompile(source: CharStream, out: PrintStream = System.out, pretty: Boolean = false) {
-    try {
-        compile(source, out, pretty)
-
-    } catch (e: TerminatedCompilationException) {
-
-        out.println("Compilation failed!")
-        out.println("Printing errors (${ErrorLog.allErrors().size}) and warnings (${ErrorLog.allWarnings().size}) ...")
-        ErrorLog.printAllErrors()
-        ErrorLog.allErrors()
-
-    } catch (e: RuntimeException) {
-
-        out.println("Compiler crashed!")
-        out.println("Printing errors (${ErrorLog.allErrors().size}) and warnings (${ErrorLog.allWarnings().size}) ...")
-        ErrorLog.printAllErrors()
-        ErrorLog.allErrors()
-        e.printStackTrace()
-    }
-}
-
-fun compile(source: CharStream, out: PrintStream, pretty: Boolean) {
-
-    // Syntactical analysis
-    val lexer = DostLexer(source)
-    val tokenStream = CommonTokenStream(lexer)
-    val parser = DostParser(tokenStream)
-    val ast = BuildAstVisitor().visit(parser.start())
-    ErrorLog.assertNoErrors()
-
-    if (pretty) {
-        PrettyPrinter.print(ast, out)
-        return
-    }
-
-    // Contextual analysis
-    ContextualAnalysisVisitor.analyse(ast)
-    ErrorLog.assertNoErrors()
-
-    // Interpret
-    Interpreter(out).start(ast)
 }

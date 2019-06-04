@@ -31,7 +31,9 @@ open class CompileWarning(sctx: SourceContext?, description: String) : Loggable(
 /**
  * The ErrorLog holds all compile errors so far.
  */
-object ErrorLog {
+class ErrorLog(
+    val settings: CompilationSettings
+) {
 
     private val errors: MutableList<CompileError> = mutableListOf()
     private val warnings: MutableList<CompileWarning> = mutableListOf()
@@ -67,9 +69,9 @@ object ErrorLog {
     fun printAllErrors(lines: Stream<String>? = null) {
         if (hasErrors()) {
             if (lines == null) {
-                printAll("Error", errors, System.err)
+                printAll("Error", errors, settings.stderr)
             } else {
-                printAllVerbosely("Error", errors, lines, System.err)
+                printAllVerbosely("Error", errors, lines, settings.stderr)
             }
         }
     }
@@ -81,9 +83,9 @@ object ErrorLog {
     fun printAllWarnings(lines: Stream<String>? = null) {
         if (hasWarnings()) {
             if (lines == null) {
-                printAll("Warning", warnings, System.out)
+                printAll("Warning", warnings, settings.stderr)
             } else {
-                printAllVerbosely("Warning", warnings, lines, System.out)
+                printAllVerbosely("Warning", warnings, lines, settings.stderr)
             }
         }
     }

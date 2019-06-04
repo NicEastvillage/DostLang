@@ -1,5 +1,7 @@
 package dk.eastvillage.dost.interpreter
 
+import dk.eastvillage.dost.CompilationInfo
+import dk.eastvillage.dost.CompilationSettings
 import dk.eastvillage.dost.ast.*
 import dk.eastvillage.dost.ast.ForLoopStepDirection.*
 import dk.eastvillage.dost.ast.Operators.ADD
@@ -28,7 +30,10 @@ class InterpreterVisitException(node: Any) : InterpretRuntimeException("${node.j
 
 object RuntimeErrorValue
 
-class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit, Any>(RuntimeErrorValue) {
+class Interpreter(
+    val settings: CompilationSettings,
+    val info: CompilationInfo
+) : BaseVisitor<Unit, Any>(RuntimeErrorValue) {
 
     private val stack: MemoryStack<String, Any> = MemoryStack()
 
@@ -108,9 +113,9 @@ class Interpreter(val printStream: PrintStream = System.out) : BaseVisitor<Unit,
                 .replace("\\n", "\n")
                 .replace("\\t", "\t")
                 .replace("\\\\", "\\")
-            printStream.println(str)
+            settings.stdout.println(str)
         } else {
-            printStream.println(visit(node.expr, Unit))
+            settings.stdout.println(visit(node.expr, Unit))
         }
         return Unit
     }

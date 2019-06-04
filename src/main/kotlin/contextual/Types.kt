@@ -31,19 +31,6 @@ fun generalizeTypes(type1: Type, type2: Type): Type? {
     }
 }
 
-fun convertExpr(expr: Expr, type: Type): Expr {
-    return when {
-        expr.type == type -> expr
-        expr.type == IntegerType && type == FloatType -> IntToFloatConversion(expr)
-        type == StringType -> AnyToStringConversion(expr) // All values can be converted to a string
-        type == ErrorType -> expr
-        else -> {
-            ErrorLog += ImplicitConversionError(expr, type)
-            expr
-        }
-    }
-}
-
 
 class ImplicitConversionError(expr: Expr, type: Type) :
     CompileError(expr.sctx, "Cannot convert expression of type ${expr.type.name} to type ${type.name} implicitly.")
