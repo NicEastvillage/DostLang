@@ -27,8 +27,7 @@ class LogicTypeError(binaryExpr: BinaryExpr) :
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
 class ContextualAnalysisVisitor(
-    val settings: CompilationSettings,
-    val info: CompilationInfo
+    private val info: CompilationInfo
 ) : BaseVisitor<Unit, Unit>(Unit) {
 
     val identTable: IdentTable = IdentTable()

@@ -31,8 +31,7 @@ class InterpreterVisitException(node: Any) : InterpretRuntimeException("${node.j
 object RuntimeErrorValue
 
 class Interpreter(
-    val settings: CompilationSettings,
-    val info: CompilationInfo
+    private val info: CompilationInfo
 ) : BaseVisitor<Unit, Any>(RuntimeErrorValue) {
 
     private val stack: MemoryStack<String, Any> = MemoryStack()
@@ -113,9 +112,9 @@ class Interpreter(
                 .replace("\\n", "\n")
                 .replace("\\t", "\t")
                 .replace("\\\\", "\\")
-            settings.stdout.println(str)
+            info.settings.stdout.println(str)
         } else {
-            settings.stdout.println(visit(node.expr, Unit))
+            info.settings.stdout.println(visit(node.expr, Unit))
         }
         return Unit
     }

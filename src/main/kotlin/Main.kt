@@ -23,9 +23,6 @@ fun main(args: Array<String>) {
         if (args[0] == "test") {
             val source = """
                 |print "Hello world"
-                |print "hey\tyou\nthere!"
-                |print "concat: " + 5 + true
-                |print 12 + 4 / 0
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(
@@ -45,8 +42,8 @@ fun main(args: Array<String>) {
 class MessageListener : ListenerAdapter() {
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
-        println("Msg received: " + event.message.contentRaw)
         if (!event.author.isBot) {
+            println("Msg received from '${event.author.name}': ${event.message.contentRaw}")
             val msg = event.message.contentRaw
             if (msg.startsWith("-dost ") || msg.startsWith("-dost\n")) {
                 /* potential message:

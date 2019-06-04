@@ -4,12 +4,10 @@ import dk.eastvillage.dost.antlr.DostLexer
 import dk.eastvillage.dost.antlr.DostParser
 import dk.eastvillage.dost.ast.BuildAstVisitor
 import dk.eastvillage.dost.contextual.ContextualAnalysisVisitor
-import dk.eastvillage.dost.interpreter.InterpretRuntimeException
 import dk.eastvillage.dost.interpreter.Interpreter
 import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CommonTokenStream
 import java.io.PrintStream
-import java.lang.RuntimeException
 
 
 class CompilationSettings(
@@ -69,13 +67,13 @@ private fun compile(settings: CompilationSettings, info: CompilationInfo) {
 
     // Contextual analysis
     info.termination = TerminationTime.DURING_ANALYSIS
-    ContextualAnalysisVisitor(settings, info).analyse(ast)
+    ContextualAnalysisVisitor(info).analyse(ast)
     info.errors.assertNoErrors()
 
     // Interpret
     info.termination = TerminationTime.DURING_INTERPRETATION
     try {
-        Interpreter(settings, info).start(ast)
+        Interpreter(info).start(ast)
     } catch (e: RuntimeException) {
         settings.stderr.println("Exception: ${e.message}")
         e.printStackTrace()
