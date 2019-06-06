@@ -62,3 +62,15 @@ fun ping () int {
 fun pong () int {
 	return ping()
 }
+
+fun outer () int {              // Returns 0 even when nested functions contains return-statements
+    var inner = fun () int {
+        return 999
+    }
+    fun inner2 () int {
+        return -1
+    }
+    inner()
+    inner2()
+    return 0
+}

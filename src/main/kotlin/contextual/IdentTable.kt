@@ -35,7 +35,7 @@ class IdentTable {
     }
 
     operator fun get(ident: String): Node? {
-        for (table in tableStack) {
+        for (table in tableStack.reversed()) {
             table[ident]?.let { return it }
         }
         return null

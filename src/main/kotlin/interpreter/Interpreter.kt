@@ -1,7 +1,6 @@
 package dk.eastvillage.dost.interpreter
 
 import dk.eastvillage.dost.CompilationInfo
-import dk.eastvillage.dost.CompilationSettings
 import dk.eastvillage.dost.ast.*
 import dk.eastvillage.dost.ast.ForLoopStepDirection.*
 import dk.eastvillage.dost.ast.Operators.ADD
@@ -20,7 +19,6 @@ import dk.eastvillage.dost.ast.Operators.SUB
 import dk.eastvillage.dost.contextual.FloatType
 import dk.eastvillage.dost.contextual.IntegerType
 import dk.eastvillage.dost.contextual.StringType
-import java.io.PrintStream
 
 
 open class InterpretRuntimeException(msg: String) : RuntimeException(msg)
@@ -34,7 +32,7 @@ class Interpreter(
     private val info: CompilationInfo
 ) : BaseVisitor<Unit, Any>(RuntimeErrorValue) {
 
-    private val stack: MemoryStack<String, Any> = MemoryStack()
+    private val stack: Memory = Memory()
 
     fun start(startNode: Node) {
         stack.pushStack()

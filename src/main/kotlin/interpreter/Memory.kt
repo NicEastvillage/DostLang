@@ -7,50 +7,52 @@ import kotlin.collections.HashMap
 class UndeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' was undefined!")
 class RedeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' already declared!")
 
-/**
- * The MemoryStack represents a combination of block scopes and the process stack. It is used to map identifiers to
- * values. The scope and stack is controlled with open/close scope and push/pop stack functions. Stacks are created
- * by function calls, and the code in a stack frame cannot see identifiers from other stack frames. Scopes are created
- * by blocks, and the code in a block can see the values of scopes surrounding it.
- */
-class MemoryStack<I, V> {
 
-    // The actual data structures of the MemoryStack
-    private class ValueTable<I, V> : HashMap<I, V>()
-    private class NestedScope<I, V> : Stack<ValueTable<I, V>>()
-    private val stack = Stack<NestedScope<I, V>>()
+class Memory {
+
+    // Each memory address is used once and is never garbage collected, so only a finite number of variables can be used
+    private val RAM_SIZE = 4_096
+
+    // The actual data structures of the Memory
+    private class ValueTable : HashMap<String, Int>()
+    private class NestedScope : Stack<ValueTable>()
+    private val stack = Stack<NestedScope>()
+    private val ram: Array<Any?> = Array(RAM_SIZE) { null }
+    private var nextAddress = 0
 
     /**
      * Add a new identifier in the current stack/scope
      */
-    fun declare(identifier: I, value: V) {
+    fun declare(identifier: String, value: Any) {
         if (stack.peek().peek().containsKey(identifier)) {
-            throw RedeclaredSymbol(identifier.toString())
+            throw RedeclaredSymbol(identifier)
         }
-        stack.peek().peek()[identifier] = value
+        val addr = nextAddress++
+        stack.peek().peek()[identifier] = addr
+        ram[addr] = value
     }
 
     /**
      * Change the value associated with the given identifier
      */
-    operator fun set(identifier: I, value: V) {
-        for (table in stack.peek()) {
-            if (table.containsKey(identifier)) {
-                table[identifier] = value
+    operator fun set(identifier: String, value: Any) {
+        for (table in stack.peek().reversed()) {
+            table[identifier]?.let {
+                ram[it] = value
                 return
             }
         }
-        throw UndeclaredSymbol(identifier.toString())
+        throw UndeclaredSymbol(identifier)
     }
 
     /**
      * Retrieve the value associated with the given identifier
      */
-    operator fun get(identifier: I): V {
-        for (table in stack.peek()) {
-            table[identifier]?.let { return it }
+    operator fun get(identifier: String): Any {
+        for (table in stack.peek().reversed()) {
+            table[identifier]?.let { return ram[it]!! }
         }
-        throw UndeclaredSymbol(identifier.toString())
+        throw UndeclaredSymbol(identifier)
     }
 
     fun pushStack() {

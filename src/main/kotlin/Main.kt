@@ -1,19 +1,11 @@
 package dk.eastvillage.dost
 
-import dk.eastvillage.dost.antlr.DostLexer
-import dk.eastvillage.dost.antlr.DostParser
-import dk.eastvillage.dost.ast.BuildAstVisitor
-import dk.eastvillage.dost.contextual.ContextualAnalysisVisitor
-import dk.eastvillage.dost.interpreter.Interpreter
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
-import org.antlr.v4.runtime.CharStream
 import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import java.lang.RuntimeException
 
 
 fun main(args: Array<String>) {
@@ -22,7 +14,20 @@ fun main(args: Array<String>) {
     } else {
         if (args[0] == "test") {
             val source = """
-                |print "Hello world"
+                |var a = 4.0
+                |var b = a * a / 2
+                |var c = false
+                |if (b > a) {
+                |   c = true
+                |   a = 2.234
+                |   var a = "It was true!"
+                |   a = "new string!"
+                |   print a
+                |}
+                |else {
+                |   print "c is " + c
+                |}
+                |print "A: " + a
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(
