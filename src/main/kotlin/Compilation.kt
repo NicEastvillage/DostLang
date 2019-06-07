@@ -60,15 +60,17 @@ private fun compile(settings: CompilationSettings, info: CompilationInfo) {
     val ast = BuildAstVisitor().visit(parser.start())
     info.errors.assertNoErrors()
 
-    if (settings.doPrettyPrinting) {
-        PrettyPrinter(settings).start(ast)
-        info.termination = TerminationTime.CORRECTLY
-    }
-
     // Contextual analysis
     info.termination = TerminationTime.DURING_ANALYSIS
     ContextualAnalysisVisitor(info).analyse(ast)
     info.errors.assertNoErrors()
+
+    // Pretty print
+    if (settings.doPrettyPrinting) {
+        PrettyPrinter(settings).start(ast)
+        info.termination = TerminationTime.CORRECTLY
+        return
+    }
 
     // Interpret
     info.termination = TerminationTime.DURING_INTERPRETATION

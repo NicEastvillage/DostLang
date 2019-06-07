@@ -6,9 +6,8 @@ import dk.eastvillage.dost.contextual.*
 
 class Identifier(
     sctx: SourceContext?,
-    var spelling: String,
-    type: Type = UncheckedType
-) : Expr(sctx, type)
+    var spelling: String
+) : Expr(sctx, UncheckedType)
 
 class IntLiteral(
     sctx: SourceContext?,
@@ -30,25 +29,28 @@ class StringLiteral(
     var value: String
 ) : Expr(sctx, StringType)
 
+class ArrayLiteral(
+    sctx: SourceContext?,
+    var sizeExpr: Expr,
+    var declaredType: Type
+) : Expr(sctx, ArrayType(UncheckedType))
+
 class BinaryExpr(
     sctx: SourceContext?,
     var left: Expr,
     var right: Expr,
-    val operator: Operator,
-    type: Type = UncheckedType
-) : Expr(sctx, type)
+    val operator: Operator
+) : Expr(sctx, UncheckedType)
 
 class NotExpr(
     sctx: SourceContext?,
-    var expr: Expr,
-    type: Type = BoolType
-) : Expr(sctx, type)
+    var expr: Expr
+) : Expr(sctx, BoolType)
 
 class Negation(
     sctx: SourceContext?,
-    var expr: Expr,
-    type: Type = UncheckedType
-) : Expr(sctx, type)
+    var expr: Expr
+) : Expr(sctx, UncheckedType)
 
 // -------------- Conversion expressions
 

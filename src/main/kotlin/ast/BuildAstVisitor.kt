@@ -3,6 +3,7 @@ package dk.eastvillage.dost.ast
 import dk.eastvillage.dost.*
 import dk.eastvillage.dost.antlr.DostBaseVisitor
 import dk.eastvillage.dost.antlr.DostParser
+import dk.eastvillage.dost.contextual.*
 import org.antlr.v4.runtime.Token
 import java.lang.AssertionError
 
@@ -291,12 +292,43 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitLiteral(ctx: DostParser.LiteralContext?): Node {
         return when {
-            ctx!!.INUM() != null -> IntLiteral(SourceContext(ctx), ctx.INUM().text.toInt())
+            ctx!!.array_lit() != null -> ctx.array_lit().accept(this)
+            ctx.INUM() != null -> IntLiteral(SourceContext(ctx), ctx.INUM().text.toInt())
             ctx.FNUM() != null -> FloatLiteral(SourceContext(ctx), ctx.FNUM().text.toFloat())
             ctx.TRUE() != null -> BoolLiteral(SourceContext(ctx), true)
             ctx.FALSE() != null -> BoolLiteral(SourceContext(ctx), false)
             ctx.STRING() != null -> StringLiteral(SourceContext(ctx), ctx.text.drop(1).dropLast(1))
             else -> throw AssertionError("Unknown literal.")
         }
+    }
+
+    override fun visitArray_lit(ctx: DostParser.Array_litContext?): Node {
+        return ArrayLiteral(
+            SourceContext(ctx!!),
+            ctx.expr().accept(this) as Expr,
+            getType(ctx.type())
+        )
+    }
+
+    private fun getType(ctx: DostParser.TypeContext): Type {
+        return when (ctx) {
+            is DostParser.SimpleTypeContext -> when (ctx.IDENT().text) {
+                "int" -> IntegerType
+                "float" -> FloatType
+                "bool" -> BoolType
+                "string" -> StringType
+                else -> throw AssertionError("Unknown custom type.")
+            }
+            is DostParser.ArrayTypeContext -> ArrayType(getType(ctx.subtype))
+            else -> throw AssertionError("Unknown type.")
+        }
+    }
+
+    override fun visitSimpleType(ctx: DostParser.SimpleTypeContext?): Node {
+        return super.visitSimpleType(ctx)
+    }
+
+    override fun visitArrayType(ctx: DostParser.ArrayTypeContext?): Node {
+        return super.visitArrayType(ctx)
     }
 }

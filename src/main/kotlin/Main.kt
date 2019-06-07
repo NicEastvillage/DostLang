@@ -14,20 +14,17 @@ fun main(args: Array<String>) {
     } else {
         if (args[0] == "test") {
             val source = """
-                |var a = 4.0
-                |var b = a * a / 2
-                |var c = false
-                |if (b > a) {
-                |   c = true
-                |   a = 2.234
-                |   var a = "It was true!"
-                |   a = "new string!"
-                |   print a
-                |}
-                |else {
-                |   print "c is " + c
-                |}
-                |print "A: " + a
+                |var s = 6
+                |var ar = [5 int]
+                |var ar2 = [s string]
+                |var ar3 = [2 bool]
+                |var ar4 = [s - 2 int[]]
+                |var ar5 = [1 bool[][][]]
+                |print "ar: " + ar
+                |print "ar2: " + ar2
+                |print "ar3: " + ar3
+                |print "ar4: " + ar4
+                |print "ar5: " + ar5
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(

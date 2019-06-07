@@ -7,7 +7,7 @@ import dk.eastvillage.dost.ast.Expr
 import dk.eastvillage.dost.ast.IntToFloatConversion
 
 
-sealed class Type(val name: String)
+sealed class Type(val name: String, val uname: String = name)
 
 // Primitives
 
@@ -19,14 +19,16 @@ object FloatType : Type("float")
 object BoolType : Type("bool")
 object StringType : Type("string")
 
+data class ArrayType(val subtype: Type) : Type("array<${subtype.name}>", "${subtype.uname}[]")
+
 
 fun generalizeTypes(type1: Type, type2: Type): Type? {
     return when {
-        type1 == ErrorType || type2 == ErrorType -> ErrorType
+        type1 === ErrorType || type2 === ErrorType -> ErrorType
         type1 == type2 -> type1
-        type1 == FloatType && type2 == IntegerType -> FloatType
-        type2 == FloatType && type1 == IntegerType -> FloatType
-        type1 == StringType || type2 == StringType -> StringType
+        type1 === FloatType && type2 === IntegerType -> FloatType
+        type2 === FloatType && type1 === IntegerType -> FloatType
+        type1 === StringType || type2 === StringType -> StringType
         else -> null
     }
 }

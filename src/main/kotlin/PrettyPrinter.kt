@@ -1,7 +1,7 @@
 package dk.eastvillage.dost
 
 import dk.eastvillage.dost.ast.*
-import java.io.PrintStream
+import dk.eastvillage.dost.contextual.ArrayType
 
 
 @Suppress("PARAMETER_NAME_CHANGED_ON_OVERRIDE")
@@ -118,6 +118,12 @@ class PrettyPrinter(
         print("\"${node.value}\"")
     }
 
+    override fun visit(node: ArrayLiteral, data: Unit) {
+        print("[")
+        visit(node.sizeExpr, Unit)
+        print(" ${(node.type as ArrayType).subtype.uname}]")
+    }
+
     override fun visit(node: BinaryExpr, data: Unit) {
         visit(node.left, Unit)
         print(" ${node.operator.spelling} ")
@@ -135,10 +141,10 @@ class PrettyPrinter(
     }
 
     override fun visit(node: IntToFloatConversion, data: Unit) {
-        visit(node, Unit)
+        visit(node.expr, Unit)
     }
 
     override fun visit(node: AnyToStringConversion, data: Unit) {
-        visit(node, Unit)
+        visit(node.expr, Unit)
     }
 }

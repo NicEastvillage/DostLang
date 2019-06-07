@@ -50,11 +50,19 @@ expr
 fun_call : IDENT LPAREN (expr (COMMA expr)* )? RPAREN ;
 
 literal
-    : INUM
+    : array_lit
+    | INUM
     | FNUM
     | TRUE
     | FALSE
     | STRING
+    ;
+
+array_lit : LBRACK expr type RBRACK ;
+
+type
+    : IDENT                     # simpleType
+    | subtype=type '[]'         # arrayType
     ;
 
 
@@ -69,6 +77,7 @@ WHILE : 'while' ;
 PRINT : 'print' ;
 TRUE : 'true' ;
 FALSE : 'false' ;
+ARRAY : 'array' ;
 
 IDENT : [a-zA-Z]([a-zA-Z0-9]+)? ;
 

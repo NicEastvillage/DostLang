@@ -43,6 +43,7 @@ interface Visitor<D, R> {
             is FloatLiteral -> visit(node, data)
             is BoolLiteral -> visit(node, data)
             is StringLiteral -> visit(node, data)
+            is ArrayLiteral -> visit(node, data)
             is BinaryExpr -> visit(node, data)
             is NotExpr -> visit(node, data)
             is Negation -> visit(node, data)
@@ -65,6 +66,7 @@ interface Visitor<D, R> {
     fun visit(node: FloatLiteral, data: D): R
     fun visit(node: BoolLiteral, data: D): R
     fun visit(node: StringLiteral, data: D): R
+    fun visit(node: ArrayLiteral, data: D): R
     fun visit(node: BinaryExpr, data: D): R
     fun visit(node: NotExpr, data: D): R
     fun visit(node: Negation, data: D): R
@@ -86,6 +88,7 @@ abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
     override fun visit(node: FloatLiteral, data: D): R = defaultValue
     override fun visit(node: BoolLiteral, data: D): R = defaultValue
     override fun visit(node: StringLiteral, data: D): R = defaultValue
+    override fun visit(node: ArrayLiteral, data: D): R = defaultValue
     override fun visit(node: BinaryExpr, data: D): R = defaultValue
     override fun visit(node: NotExpr, data: D): R = defaultValue
     override fun visit(node: Negation, data: D): R = defaultValue

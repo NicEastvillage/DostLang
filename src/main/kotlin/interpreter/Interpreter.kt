@@ -16,9 +16,8 @@ import dk.eastvillage.dost.ast.Operators.MUL
 import dk.eastvillage.dost.ast.Operators.NEQ
 import dk.eastvillage.dost.ast.Operators.OR
 import dk.eastvillage.dost.ast.Operators.SUB
-import dk.eastvillage.dost.contextual.FloatType
-import dk.eastvillage.dost.contextual.IntegerType
-import dk.eastvillage.dost.contextual.StringType
+import dk.eastvillage.dost.contextual.*
+import java.lang.AssertionError
 
 
 open class InterpretRuntimeException(msg: String) : RuntimeException(msg)
@@ -210,11 +209,44 @@ class Interpreter(
         else -(visit(node.expr, Unit) as Float)
     }
 
+    override fun visit(node: ArrayLiteral, data: Unit): Any {
+        val size = visit(node.sizeExpr, Unit) as Int
+        return Array<Any>(size) { arrayDefaultValue((node.type as ArrayType).subtype) }
+    }
+
+    private fun arrayDefaultValue(type: Type): Any {
+        return when (type) {
+            IntegerType -> 0
+            FloatType -> 0f
+            BoolType -> false
+            StringType -> ""
+            is ArrayType -> Array<Any>(0) { Unit }
+            else -> throw AssertionError("${type.name} has no default value.")
+        }
+    }
+
     override fun visit(node: IntToFloatConversion, data: Unit): Any {
         return (visit(node.expr, Unit) as Int).toFloat()
     }
 
     override fun visit(node: AnyToStringConversion, data: Unit): Any {
-        return visit(node.expr, Unit).toString()
+        val value = visit(node.expr, Unit)
+        return stringRepresentation(value)
+    }
+
+    private fun stringRepresentation(value: Any): String {
+        return when (value) {
+            is Array<*> -> {
+                val sb = StringBuilder("[")
+                for ((index, elem) in value.withIndex()) {
+                    if (index > 0) sb.append(", ")
+                    sb.append(elem?.let { stringRepresentation(it) })
+                }
+                sb.append("]")
+                sb.toString()
+            }
+            is String -> "\"$value\""
+            else -> value.toString()
+        }
     }
 }

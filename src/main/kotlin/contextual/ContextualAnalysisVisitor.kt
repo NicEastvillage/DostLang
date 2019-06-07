@@ -207,6 +207,14 @@ class ContextualAnalysisVisitor(
         }
     }
 
+    override fun visit(node: ArrayLiteral, data: Unit) {
+        visit(node.sizeExpr, data)
+        if (node.sizeExpr.type != IntegerType) {
+            info.errors += TypeError(node.sizeExpr.sctx, "Size of array must be an integer.")
+        }
+        node.type = ArrayType(node.declaredType)
+    }
+
     override fun visit(node: IntToFloatConversion, data: Unit) {
         visit(node.expr, Unit)
         if (node.expr.type != IntegerType && node.expr.type != ErrorType) {
