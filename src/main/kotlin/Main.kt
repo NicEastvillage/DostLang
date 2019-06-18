@@ -14,17 +14,9 @@ fun main(args: Array<String>) {
     } else {
         if (args[0] == "test") {
             val source = """
-                |var s = 6
                 |var ar = [5 int]
-                |var ar2 = [s string]
-                |var ar3 = [2 bool]
-                |var ar4 = [s - 2 int[]]
-                |var ar5 = [1 bool[][][]]
+                |//ar[2 - 1] = 2 + 5 // Wont work :(
                 |print "ar: " + ar
-                |print "ar2: " + ar2
-                |print "ar3: " + ar3
-                |print "ar4: " + ar4
-                |print "ar5: " + ar5
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(

@@ -60,7 +60,8 @@ class PrettyPrinter(
     }
 
     override fun visit(node: Assignment, data: Unit) {
-        print("${node.variable.spelling} = ")
+        visit(node.lvalue, Unit)
+        print(" = ")
         visit(node.expr, Unit)
     }
 
@@ -146,5 +147,16 @@ class PrettyPrinter(
 
     override fun visit(node: AnyToStringConversion, data: Unit) {
         visit(node.expr, Unit)
+    }
+
+    override fun visit(node: LValueVariable, data: Unit) {
+        print(node.variable.spelling)
+    }
+
+    override fun visit(node: LValueIndexing, data: Unit) {
+        visit(node.lvalue, Unit)
+        print("[")
+        visit(node.expr, Unit)
+        print("]")
     }
 }

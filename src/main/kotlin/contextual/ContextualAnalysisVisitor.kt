@@ -10,6 +10,9 @@ class UndeclaredIdentError(sctx: SourceContext?, ident: String) :
 class NotReassignableError(sctx: SourceContext?, ident: String, decl: Node) :
     CompileError(sctx, "'$ident' is not reassignable since it was declared as a ${decl.javaClass}.")
 
+class NotIndexableError(sctx: SourceContext?, type: Type) :
+    CompileError(sctx, "Indexing is not possible for $type.")
+
 open class TypeError(sctx: SourceContext?, description: String) : CompileError(sctx, description)
 
 class IncompatibleTypesError(sctx: SourceContext?, type1: Type, type2: Type) :
@@ -68,15 +71,9 @@ class ContextualAnalysisVisitor(
     }
 
     override fun visit(node: Assignment, data: Unit) {
+        visit(node.lvalue, Unit)
         visit(node.expr, Unit)
-        val decl = identTable[node.variable.spelling]
-        when (decl) {
-            null -> info.errors += UndeclaredIdentError(node.variable.sctx, node.variable.spelling)
-            is VariableDecl -> {
-                node.expr = convertExpr(node.expr, decl.inferredType)
-            }
-            else -> info.errors += NotReassignableError(node.variable.sctx, node.variable.spelling, decl)
-        }
+        node.expr = convertExpr(node.expr, node.lvalue.type)
     }
 
     override fun visit(node: IfStmt, data: Unit) {
@@ -227,5 +224,29 @@ class ContextualAnalysisVisitor(
         // All values can be converted to a string
         visit(node.expr, Unit)
         node.type = StringType
+    }
+
+    override fun visit(node: LValueVariable, data: Unit) {
+        val decl = identTable[node.variable.spelling]
+        when (decl) {
+            null -> info.errors += UndeclaredIdentError(node.variable.sctx, node.variable.spelling)
+            is VariableDecl -> {
+                node.type = decl.inferredType
+            }
+            else -> info.errors += NotReassignableError(node.variable.sctx, node.variable.spelling, decl)
+        }
+    }
+
+    override fun visit(node: LValueIndexing, data: Unit) {
+        visit(node.lvalue, Unit)
+        when (node.lvalue.type) {
+            is ArrayType -> node.type = (node.lvalue.type as ArrayType).subtype
+            else -> info.errors += NotIndexableError(node.sctx, node.type)
+        }
+
+        visit(node.expr, Unit)
+        if (node.expr.type != IntegerType) {
+            info.errors += TypeError(node.sctx, "Index expression must be of type ${IntegerType.name}.")
+        }
     }
 }

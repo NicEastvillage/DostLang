@@ -19,7 +19,9 @@ object FloatType : Type("float")
 object BoolType : Type("bool")
 object StringType : Type("string")
 
-data class ArrayType(val subtype: Type) : Type("array<${subtype.name}>", "${subtype.uname}[]")
+data class ArrayType(val subtype: Type) : Type("array<${subtype.name}>", "${subtype.uname}[]") {
+    val basetype: Type get() = if (subtype is ArrayType) subtype.basetype else subtype
+}
 
 
 fun generalizeTypes(type1: Type, type2: Type): Type? {

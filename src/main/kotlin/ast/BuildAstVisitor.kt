@@ -5,6 +5,7 @@ import dk.eastvillage.dost.antlr.DostBaseVisitor
 import dk.eastvillage.dost.antlr.DostParser
 import dk.eastvillage.dost.contextual.*
 import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.tree.TerminalNode
 import java.lang.AssertionError
 
 
@@ -56,7 +57,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitVariableDecl(ctx: DostParser.VariableDeclContext?): Node {
         return VariableDecl(
             SourceContext(ctx!!),
-            identFrom(ctx.variable),
+            identFrom(ctx.IDENT()),
             ctx.expr().accept(this) as Expr
         )
     }
@@ -64,9 +65,20 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitAssignment(ctx: DostParser.AssignmentContext?): Node {
         return Assignment(
             SourceContext(ctx!!),
-            identFrom(ctx.IDENT().symbol),
+            ctx.lvalue().accept(this) as LValue,
             ctx.expr().accept(this) as Expr
         )
+    }
+
+    override fun visitLvalue(ctx: DostParser.LvalueContext?): Node {
+        return when {
+            ctx!!.variable != null -> LValueVariable(SourceContext(ctx), identFrom(ctx.IDENT()))
+            else -> LValueIndexing(
+                SourceContext(ctx.LBRACK()),
+                ctx.lvalue().accept(this) as LValue,
+                ctx.index.accept(this) as Expr
+            )
+        }
     }
 
     override fun visitIfStmt(ctx: DostParser.IfStmtContext?): Node {
@@ -104,7 +116,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     override fun visitFor_loop(ctx: DostParser.For_loopContext?): Node {
         return ForLoop(
             SourceContext(ctx!!),
-            identFrom(ctx.IDENT().symbol),
+            identFrom(ctx.IDENT()),
             ctx.init.accept(this) as Expr,
             ctx.end.accept(this) as Expr,
             getStepDirection(ctx.range()),
@@ -136,7 +148,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitInequalityExpr(ctx: DostParser.InequalityExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.NEQ().symbol),
+            SourceContext(ctx!!.NEQ()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.NEQ
@@ -145,14 +157,14 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitNegationExpr(ctx: DostParser.NegationExprContext?): Node {
         return Negation(
-            SourceContext(ctx!!.SUB().symbol),
+            SourceContext(ctx!!.SUB()),
             ctx.expr().accept(this) as Expr
         )
     }
 
     override fun visitModuloExpr(ctx: DostParser.ModuloExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.MOD().symbol),
+            SourceContext(ctx!!.MOD()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.MOD
@@ -161,7 +173,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitGreaterOrEqExpr(ctx: DostParser.GreaterOrEqExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.GEQ().symbol),
+            SourceContext(ctx!!.GEQ()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.GEQ
@@ -170,7 +182,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitAdditionExpr(ctx: DostParser.AdditionExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.ADD().symbol),
+            SourceContext(ctx!!.ADD()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.ADD
@@ -179,7 +191,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitLessThanExpr(ctx: DostParser.LessThanExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.LT().symbol),
+            SourceContext(ctx!!.LT()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.LT
@@ -188,7 +200,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitOrExpr(ctx: DostParser.OrExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.OR().symbol),
+            SourceContext(ctx!!.OR()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.OR
@@ -203,7 +215,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitDivisionExpr(ctx: DostParser.DivisionExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.DIV().symbol),
+            SourceContext(ctx!!.DIV()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.DIV
@@ -211,10 +223,10 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
     }
 
     override fun visitIdentExpr(ctx: DostParser.IdentExprContext?): Node {
-        return identFrom(ctx!!.IDENT().symbol)
+        return identFrom(ctx!!.IDENT())
     }
 
-    private fun identFrom(id: Token): Identifier {
+    private fun identFrom(id: TerminalNode): Identifier {
         return Identifier(
             SourceContext(id),
             id.text
@@ -223,7 +235,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitGreaterThanExpr(ctx: DostParser.GreaterThanExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.GT().symbol),
+            SourceContext(ctx!!.GT()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.GT
@@ -232,7 +244,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitNotExpr(ctx: DostParser.NotExprContext?): Node {
         return NotExpr(
-            SourceContext(ctx!!.BANG().symbol),
+            SourceContext(ctx!!.BANG()),
             ctx.expr().accept(this) as Expr
         )
     }
@@ -243,7 +255,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitMultiplictionExpr(ctx: DostParser.MultiplictionExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.MUL().symbol),
+            SourceContext(ctx!!.MUL()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.MUL
@@ -252,7 +264,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitSubstractionExpr(ctx: DostParser.SubstractionExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.SUB().symbol),
+            SourceContext(ctx!!.SUB()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.SUB
@@ -261,7 +273,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitLessOrEqExpr(ctx: DostParser.LessOrEqExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.LEQ().symbol),
+            SourceContext(ctx!!.LEQ()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.LEQ
@@ -270,7 +282,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitEqualityExpr(ctx: DostParser.EqualityExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.EQ().symbol),
+            SourceContext(ctx!!.EQ()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.EQ
@@ -279,7 +291,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitAndExpr(ctx: DostParser.AndExprContext?): Node {
         return BinaryExpr(
-            SourceContext(ctx!!.AND().symbol),
+            SourceContext(ctx!!.AND()),
             ctx.left.accept(this) as Expr,
             ctx.right.accept(this) as Expr,
             Operators.AND

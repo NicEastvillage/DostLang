@@ -19,7 +19,7 @@ class VariableDecl(
 
 class Assignment(
     sctx: SourceContext?,
-    var variable: Identifier,
+    var lvalue: LValue,
     var expr: Expr
 ) : Stmt(sctx)
 

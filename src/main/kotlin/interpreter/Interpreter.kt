@@ -1,5 +1,6 @@
 package dk.eastvillage.dost.interpreter
 
+import com.sun.jdi.BooleanType
 import dk.eastvillage.dost.CompilationInfo
 import dk.eastvillage.dost.ast.*
 import dk.eastvillage.dost.ast.ForLoopStepDirection.*
@@ -17,7 +18,7 @@ import dk.eastvillage.dost.ast.Operators.NEQ
 import dk.eastvillage.dost.ast.Operators.OR
 import dk.eastvillage.dost.ast.Operators.SUB
 import dk.eastvillage.dost.contextual.*
-import java.lang.AssertionError
+import kotlin.AssertionError
 
 
 open class InterpretRuntimeException(msg: String) : RuntimeException(msg)
@@ -31,34 +32,66 @@ class Interpreter(
     private val info: CompilationInfo
 ) : BaseVisitor<Unit, Any>(RuntimeErrorValue) {
 
-    private val stack: Memory = Memory()
+    private val memory: Memory = Memory()
 
     fun start(startNode: Node) {
-        stack.pushStack()
-        stack.openScope()
+        memory.pushStack()
+        memory.openScope()
         visit(startNode, Unit)
-        stack.closeScope()
-        stack.popStack()
+        memory.closeScope()
+        memory.popStack()
     }
 
     override fun visit(node: StmtBlock, data: Unit): Any {
-        stack.openScope()
+        memory.openScope()
         for (stmt in node.stmts) {
             visit(stmt, Unit)
         }
-        stack.closeScope()
+        memory.closeScope()
         return Unit
     }
 
     override fun visit(node: VariableDecl, data: Unit): Any {
         val value = visit(node.expr, Unit)
-        stack.declare(node.variable.spelling, value)
+        memory.declare(node.variable.spelling, value)
         return Unit
     }
 
     override fun visit(node: Assignment, data: Unit): Any {
-        val value = visit(node.expr, Unit)
-        stack[node.variable.spelling] = value
+        val rvalue = visit(node.expr, Unit)
+        val lvalue = node.lvalue
+
+        if (lvalue is LValueIndexing) {
+            // Arrays are Kotlin arrays store in a slot in memory. First we must find it using the variable name,
+            // then we must index it, and then do the assign
+            fun assignToArray(lvi: LValue, level: Int = 0): Array<*> = when (lvi) {
+                is LValueIndexing -> {
+                    val array = assignToArray(lvi.lvalue, level + 1)
+                    val index = visit(lvi.expr, Unit) as Int
+                    if (level == 0) {
+                        // Do assigment
+                        when (lvalue.type) {
+                            IntegerType -> (array as Array<Int>)[index] = rvalue as Int
+                            FloatType -> (array as Array<Float>)[index] = rvalue as Float
+                            BoolType -> (array as Array<Boolean>)[index] = rvalue as Boolean
+                            StringType -> (array as Array<String>)[index] = rvalue as String
+                            is ArrayType -> TODO("Shit")
+                        }
+                        array // Return array
+                    } else {
+                        array[index] as Array<*> // return sub-array
+                    }
+                }
+                is LValueVariable -> memory[lvi.variable.spelling] as Array<*> // Get array from memory
+                else -> throw AssertionError("Unknown LValue.")
+            }
+            assignToArray(lvalue)
+
+        } else if (lvalue is LValueVariable) {
+            memory[lvalue.variable.spelling] = rvalue
+        }
+
+
         return Unit
     }
 
@@ -83,13 +116,13 @@ class Interpreter(
         }
         val varName = node.variable.spelling
 
-        stack.openScope() // The index variable lives in its own scope
-        stack.declare(varName, init)
+        memory.openScope() // The index variable lives in its own scope
+        memory.declare(varName, init)
         for (i in range) {
-            stack[varName] = i
+            memory[varName] = i
             visit(node.block, Unit)
         }
-        stack.closeScope()
+        memory.closeScope()
         return Unit
     }
 
@@ -117,7 +150,7 @@ class Interpreter(
     }
 
     override fun visit(node: Identifier, data: Unit): Any {
-        return stack[node.spelling]
+        return memory[node.spelling]
     }
 
     override fun visit(node: IntLiteral, data: Unit): Any {

@@ -12,12 +12,17 @@ stmts
 stmt_end : (NEWLINE | SEMI) ;
 
 stmt
-    : VAR variable=IDENT ASSIGN expr        # variableDecl
-    | variable=IDENT ASSIGN expr            # assignment
+    : VAR IDENT ASSIGN expr        # variableDecl
+    | lvalue ASSIGN expr                    # assignment
     | if_stmt                               # ifStmt
     | WHILE LPAREN expr RPAREN stmts_block  # whileLoop
     | for_loop                              # forLoop
     | PRINT expr                            # printStmt
+    ;
+
+lvalue
+    : IDENT
+    | lvalue LBRACK index=expr RBRACK
     ;
 
 if_stmt : IF LPAREN expr RPAREN stmts_block if_end? ;

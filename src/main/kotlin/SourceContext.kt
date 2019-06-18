@@ -1,7 +1,7 @@
 package dk.eastvillage.dost
 
 import org.antlr.v4.runtime.ParserRuleContext
-import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.tree.TerminalNode
 
 /**
  * The SourceContext data class contains the position of the context in the source code from which an AST node was created.
@@ -14,7 +14,7 @@ data class SourceContext(
     val charPositionInLine: Int
 ) {
     constructor(ctx: ParserRuleContext) : this(ctx.start.line, ctx.start.charPositionInLine)
-    constructor(token: Token) : this(token.line, token.charPositionInLine)
+    constructor(terminalNode: TerminalNode) : this(terminalNode.symbol.line, terminalNode.symbol.charPositionInLine)
 
     /**
      * Returns a formatted string of the source position

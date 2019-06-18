@@ -38,6 +38,7 @@ interface Visitor<D, R> {
 
     fun visit(node: Expr, data: D): R {
         return when (node) {
+            is LValue -> visit(node, data)
             is Identifier -> visit(node, data)
             is IntLiteral -> visit(node, data)
             is FloatLiteral -> visit(node, data)
@@ -53,9 +54,19 @@ interface Visitor<D, R> {
         }
     }
 
+    fun visit(node: LValue, data: D): R {
+        return when (node) {
+            is LValueVariable -> visit(node, data)
+            is LValueIndexing -> visit(node, data)
+            else -> throw AssertionError("Trying to visit unknown LValue.")
+        }
+    }
+
     fun visit(node: StmtBlock, data: D): R
     fun visit(node: VariableDecl, data: D): R
     fun visit(node: Assignment, data: D): R
+    fun visit(node: LValueVariable, data: D): R
+    fun visit(node: LValueIndexing, data: D): R
     fun visit(node: IfStmt, data: D): R
     fun visit(node: ForLoop, data: D): R
     fun visit(node: WhileLoop, data: D): R
@@ -79,6 +90,8 @@ abstract class BaseVisitor<D, R>(private val defaultValue: R) : Visitor<D, R> {
     override fun visit(node: StmtBlock, data: D): R = defaultValue
     override fun visit(node: VariableDecl, data: D): R = defaultValue
     override fun visit(node: Assignment, data: D): R = defaultValue
+    override fun visit(node: LValueVariable, data: D): R = defaultValue
+    override fun visit(node: LValueIndexing, data: D): R = defaultValue
     override fun visit(node: IfStmt, data: D): R = defaultValue
     override fun visit(node: ForLoop, data: D): R = defaultValue
     override fun visit(node: WhileLoop, data: D): R = defaultValue
