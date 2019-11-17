@@ -107,6 +107,9 @@ class ContextualAnalysisVisitor(
 
     override fun visit(node: PrintStmt, data: Unit) {
         visit(node.expr, Unit)
+        if (node.expr.type !is StringType) {
+            node.expr = AnyToStringConversion(node.expr)
+        }
     }
 
     override fun visit(node: Identifier, data: Unit) {
