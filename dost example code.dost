@@ -16,7 +16,7 @@ bar(5)
 
 
 var arr = [10 int] 					// empty int array with size of 10
-arr = [(5 + a) int]					// dynamically allocated array of size (5 + a)
+// arr = [(5 + a) int]				// dynamically allocated array of size (5 + a) - NOT SUPPORTED YET
 arr = [5 int : 45, 3, 1, 4, 0]  	// array of size 5 with values
 arr = [5 int :: i * 2 ] 			// array of size 5 with an expression generating values, i is index
 var length = #arr 					// #arr evaluate to size of arr

@@ -12,7 +12,7 @@ stmts
 stmt_end : (NEWLINE | SEMI) ;
 
 stmt
-    : VAR IDENT ASSIGN expr        # variableDecl
+    : VAR IDENT ASSIGN expr                 # variableDecl
     | lvalue ASSIGN expr                    # assignment
     | if_stmt                               # ifStmt
     | WHILE LPAREN expr RPAREN stmts_block  # whileLoop

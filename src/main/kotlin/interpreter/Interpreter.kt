@@ -1,6 +1,5 @@
 package dk.eastvillage.dost.interpreter
 
-import com.sun.jdi.BooleanType
 import dk.eastvillage.dost.CompilationInfo
 import dk.eastvillage.dost.ast.*
 import dk.eastvillage.dost.ast.ForLoopStepDirection.*
@@ -62,33 +61,30 @@ class Interpreter(
         val lvalue = node.lvalue
 
         if (lvalue is LValueIndexing) {
-            // Arrays are Kotlin arrays store in a slot in memory. First we must find it using the variable name,
-            // then we must index it, and then do the assign
-            fun assignToArray(lvi: LValue, level: Int = 0): Array<*> = when (lvi) {
+            // An array is a pointer to a chunk of memory.
+            // When indexing, we need to find the base address and then add the offset
+            fun getAddressOfLValue(lvi: LValue): Int = when (lvi) {
                 is LValueIndexing -> {
-                    val array = assignToArray(lvi.lvalue, level + 1)
-                    val index = visit(lvi.expr, Unit) as Int
-                    if (level == 0) {
-                        // Do assigment
-                        when (lvalue.type) {
-                            IntegerType -> (array as Array<Int>)[index] = rvalue as Int
-                            FloatType -> (array as Array<Float>)[index] = rvalue as Float
-                            BoolType -> (array as Array<Boolean>)[index] = rvalue as Boolean
-                            StringType -> (array as Array<String>)[index] = rvalue as String
-                            is ArrayType -> TODO("Shit")
-                        }
-                        array // Return array
+                    val subAddr = getAddressOfLValue(lvi.lvalue)
+                    val addr = if (lvi.lvalue is LValueIndexing) {
+                        // Follow the pointer if the sub-lvalue was also an LValueIndexing
+                        memory[subAddr] as Int
                     } else {
-                        array[index] as Array<*> // return sub-array
+                        subAddr
                     }
+                    val offset = visit(lvi.expr, Unit) as Int
+                    // First value of the array is the size
+                    // TODO Bounds check
+                    addr + offset + 1
                 }
-                is LValueVariable -> memory[lvi.variable.spelling] as Array<*> // Get array from memory
+                is LValueVariable -> (memory.get(lvi.variable.spelling) as ArrayPointer).addrToSize // Get address of array (pointer)
                 else -> throw AssertionError("Unknown LValue.")
             }
-            assignToArray(lvalue)
+            val addr = getAddressOfLValue(lvalue)
+            memory[addr] = rvalue
 
         } else if (lvalue is LValueVariable) {
-            memory[lvalue.variable.spelling] = rvalue
+            memory.set(lvalue.variable.spelling, rvalue)
         }
 
 
@@ -119,7 +115,7 @@ class Interpreter(
         memory.openScope() // The index variable lives in its own scope
         memory.declare(varName, init)
         for (i in range) {
-            memory[varName] = i
+            memory.set(varName, i)
             visit(node.block, Unit)
         }
         memory.closeScope()
@@ -150,7 +146,7 @@ class Interpreter(
     }
 
     override fun visit(node: Identifier, data: Unit): Any {
-        return memory[node.spelling]
+        return memory.get(node.spelling)
     }
 
     override fun visit(node: IntLiteral, data: Unit): Any {
@@ -244,7 +240,16 @@ class Interpreter(
 
     override fun visit(node: ArrayLiteral, data: Unit): Any {
         val size = visit(node.sizeExpr, Unit) as Int
-        return Array<Any>(size) { arrayDefaultValue((node.type as ArrayType).subtype) }
+        // Allocate a chunk that is +1 of size. The first value will contain the size
+        val chunk = memory.allocChunk(size + 1)
+        val array = ArrayPointer(chunk, chunk + 1)
+        memory[array.addrToSize] = size
+        // Fill array with default value
+        val defaultValue = arrayDefaultValue((node.type as ArrayType).subtype)
+        for (i in 0 until size) {
+            memory[array.addrToValues + i] = defaultValue
+        }
+        return array
     }
 
     private fun arrayDefaultValue(type: Type): Any {
@@ -253,7 +258,7 @@ class Interpreter(
             FloatType -> 0f
             BoolType -> false
             StringType -> ""
-            is ArrayType -> Array<Any>(0) { Unit }
+            is ArrayType -> throw NotImplementedError("Default values for arrays within arrays are unimplemented.") //TODO
             else -> throw AssertionError("${type.name} has no default value.")
         }
     }
@@ -269,11 +274,12 @@ class Interpreter(
 
     private fun stringRepresentation(value: Any): String {
         return when (value) {
-            is Array<*> -> {
+            is ArrayPointer -> {
                 val sb = StringBuilder("[")
-                for ((index, elem) in value.withIndex()) {
-                    if (index > 0) sb.append(", ")
-                    sb.append(elem?.let { stringRepresentation(it) })
+                val size = memory[value.addrToSize] as Int
+                for (i in 0 until size) {
+                    if (i > 0) sb.append(", ")
+                    sb.append(stringRepresentation(memory[value.addrToValues + i]))
                 }
                 sb.append("]")
                 sb.toString()

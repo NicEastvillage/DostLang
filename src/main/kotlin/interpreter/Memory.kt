@@ -7,6 +7,7 @@ import kotlin.collections.HashMap
 class UndeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' was undefined!")
 class RedeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' already declared!")
 
+class ArrayPointer(val addrToSize: Int, val addrToValues: Int)
 
 class Memory {
 
@@ -14,10 +15,11 @@ class Memory {
     private val RAM_SIZE = 4_096
 
     // The actual data structures of the Memory
+    // Identifiers are named pointers
     private class ValueTable : HashMap<String, Int>()
     private class NestedScope : Stack<ValueTable>()
     private val stack = Stack<NestedScope>()
-    private val ram: Array<Any?> = Array(RAM_SIZE) { null }
+    private val ram: Array<Any> = Array(RAM_SIZE) { -4242 }
     private var nextAddress = 0
 
     /**
@@ -35,7 +37,7 @@ class Memory {
     /**
      * Change the value associated with the given identifier
      */
-    operator fun set(identifier: String, value: Any) {
+    fun set(identifier: String, value: Any) {
         for (table in stack.peek().reversed()) {
             table[identifier]?.let {
                 ram[it] = value
@@ -48,11 +50,48 @@ class Memory {
     /**
      * Retrieve the value associated with the given identifier
      */
-    operator fun get(identifier: String): Any {
+    fun get(identifier: String): Any {
         for (table in stack.peek().reversed()) {
-            table[identifier]?.let { return ram[it]!! }
+            table[identifier]?.let { return ram[it] }
         }
         throw UndeclaredSymbol(identifier)
+    }
+
+    /**
+     * Changes the value of the given address to the given value
+     */
+    operator fun set(addr: Int, value: Any) {
+        ram[addr] = value
+    }
+
+    /**
+     * Retrieve the value at the given address
+     */
+    operator fun get(addr: Int): Any {
+        return ram[addr]
+    }
+
+    /**
+     * Allocates multiple values in the RAM.
+     * The values will be uninitialized.
+     * The address of the first value is returned.
+     */
+    fun allocChunk(size: Int): Int {
+        val addr = nextAddress
+        nextAddress += size
+        return addr
+    }
+
+    /**
+     * Add a new identifier in the current stack/scope.
+     * It refers to a chunk of uninitialized memory.
+     */
+    fun declareChunk(identifier: String, size: Int) {
+        if (stack.peek().peek().containsKey(identifier)) {
+            throw RedeclaredSymbol(identifier)
+        }
+        val addr = allocChunk(size)
+        stack.peek().peek()[identifier] = addr
     }
 
     fun pushStack() {

@@ -4,7 +4,6 @@ import dk.eastvillage.dost.*
 import dk.eastvillage.dost.antlr.DostBaseVisitor
 import dk.eastvillage.dost.antlr.DostParser
 import dk.eastvillage.dost.contextual.*
-import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.tree.TerminalNode
 import java.lang.AssertionError
 
@@ -72,7 +71,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
 
     override fun visitLvalue(ctx: DostParser.LvalueContext?): Node {
         return when {
-            ctx!!.variable != null -> LValueVariable(SourceContext(ctx), identFrom(ctx.IDENT()))
+            ctx!!.IDENT() != null -> LValueVariable(SourceContext(ctx), identFrom(ctx.IDENT()))
             else -> LValueIndexing(
                 SourceContext(ctx.LBRACK()),
                 ctx.lvalue().accept(this) as LValue,
@@ -130,7 +129,7 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
             range.UPTOINC() != null -> ForLoopStepDirection.UP_TO_INC
             range.DOWNTO() != null -> ForLoopStepDirection.DOWN_TO
             range.DOWNTOINC() != null -> ForLoopStepDirection.DOWN_TO_INC
-            else -> throw AssertionError("Unknown step direction for for-loop.")
+            else -> throw AssertionError("Unknown step direction for for-loop. $range")
         }
     }
 

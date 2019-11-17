@@ -15,8 +15,11 @@ fun main(args: Array<String>) {
         if (args[0] == "test") {
             val source = """
                 |var ar = [5 int]
-                |//ar[2 - 1] = 2 + 5 // Wont work :(
+                |ar[0] = 2 + 5
+                |ar[1] = -4
+                |//ar[2] = ar[0] + ar[1]  // Doesn't work :(
                 |print "ar: " + ar
+                |print ar
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(
