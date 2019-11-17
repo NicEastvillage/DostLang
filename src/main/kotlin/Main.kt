@@ -18,6 +18,9 @@ fun main(args: Array<String>) {
                 |ar[0] = 2 + 5
                 |ar[1] = -4
                 |//ar[2] = ar[0] + ar[1]  // Doesn't work :(
+                |for (i in 0..1) {
+                |    print true
+                |}
                 |print ar
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"

@@ -127,7 +127,7 @@ COMMENT : '/*' .*? '*/' -> channel(HIDDEN) ;
 LINE_COMMENT : '//' ~[\r\n]* -> channel(HIDDEN) ;
 
 INUM : [1-9][0-9]* | [0] ;
-FNUM : INUM '.' [0-9]* ;
+FNUM : INUM '.' [0-9]+ ;
 STRING : '"' STRING_CHAR* '"' ;
 STRING_CHAR : ~["\\\n] | '\\' [tn"\\] ; // All characters except newlines and backslaces, unless they are written as '\n' and '\\'. '\t' and '\"'are also an accepted characters.
 
