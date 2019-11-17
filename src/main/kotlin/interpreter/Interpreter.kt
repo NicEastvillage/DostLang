@@ -238,6 +238,13 @@ class Interpreter(
         else -(visit(node.expr, Unit) as Float)
     }
 
+    override fun visit(node: IndexAccessExpr, data: Unit): Any {
+        val array = visit(node.arrayExpr, data) as ArrayPointer
+        val index = visit(node.indexExpr, data) as Int
+        // TODO Bounds check
+        return memory[array.addrToValues + index]
+    }
+
     override fun visit(node: ArrayLiteral, data: Unit): Any {
         val size = visit(node.sizeExpr, Unit) as Int
         // Allocate a chunk that is +1 of size. The first value will contain the size

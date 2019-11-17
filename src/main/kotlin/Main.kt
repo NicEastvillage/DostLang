@@ -15,13 +15,14 @@ fun main(args: Array<String>) {
         if (args[0] == "test") {
             val source = """
                 |var ar = [5 int]
-                |ar[0] = 2 + 5
-                |ar[1] = -4
-                |//ar[2] = ar[0] + ar[1]  // Doesn't work :(
-                |for (i in 0..1) {
-                |    print true
+                |for (i in 0..5) {
+                |   ar[i] = i
                 |}
-                |print ar
+                |print "Array: ar = " + ar
+                |print "Array size: ar[-1] = " + ar[-1]
+                |print "Array 'pointer': ar[5] = " + ar[5]
+                |print "for loop's i: ar[6] = " + ar[6]
+                |print "Unknown: ar[7] = " + ar[7]
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(

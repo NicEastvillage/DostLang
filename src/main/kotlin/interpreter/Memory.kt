@@ -19,7 +19,7 @@ class Memory {
     private class ValueTable : HashMap<String, Int>()
     private class NestedScope : Stack<ValueTable>()
     private val stack = Stack<NestedScope>()
-    private val ram: Array<Any> = Array(RAM_SIZE) { -4242 }
+    private val ram: Array<Any> = Array(RAM_SIZE) { -42424242 }
     private var nextAddress = 0
 
     /**

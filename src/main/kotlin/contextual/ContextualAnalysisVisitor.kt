@@ -215,6 +215,22 @@ class ContextualAnalysisVisitor(
         node.type = ArrayType(node.declaredType)
     }
 
+    override fun visit(node: IndexAccessExpr, data: Unit) {
+        visit(node.arrayExpr, data)
+        val arrayType = node.arrayExpr.type
+        if (arrayType !is ArrayType) {
+            info.errors += TypeError(node.arrayExpr.sctx, "Index accessing can only be done on arrays.")
+            node.type = ErrorType
+        } else {
+            node.type = arrayType.subtype
+        }
+
+        visit(node.indexExpr, data)
+        if (node.indexExpr.type != IntegerType) {
+            info.errors += TypeError(node.indexExpr.sctx, "Index expression must be an integer.")
+        }
+    }
+
     override fun visit(node: IntToFloatConversion, data: Unit) {
         visit(node.expr, Unit)
         if (node.expr.type != IntegerType && node.expr.type != ErrorType) {

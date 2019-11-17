@@ -297,6 +297,14 @@ class BuildAstVisitor : DostBaseVisitor<Node>() {
         )
     }
 
+    override fun visitIndexAccessExpr(ctx: DostParser.IndexAccessExprContext?): Node {
+        return IndexAccessExpr(
+            SourceContext(ctx!!.LBRACK()),
+            ctx.target.accept(this) as Expr,
+            ctx.index.accept(this) as Expr
+        )
+    }
+
     override fun visitFun_call(ctx: DostParser.Fun_callContext?): Node {
         TODO("not implemented")
     }

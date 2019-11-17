@@ -52,6 +52,12 @@ class Negation(
     var expr: Expr
 ) : Expr(sctx, UncheckedType)
 
+class IndexAccessExpr(
+    sctx: SourceContext?,
+    var arrayExpr: Expr,
+    var indexExpr: Expr
+) : Expr(sctx, UncheckedType)
+
 // -------------- Conversion expressions
 
 class IntToFloatConversion(

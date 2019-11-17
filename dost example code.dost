@@ -22,6 +22,9 @@ arr = [5 int :: i * 2 ] 			// array of size 5 with an expression generating valu
 var length = #arr 					// #arr evaluate to size of arr
 var first = arr[0]
 var last = arr[-1]
+// var error = arr[1000]            // Runtime error since index is out of bounds
+// var error = arr[-1000]           // Runtime error since index is out of bounds
+
 arr[5] = foo(first)
 
 for (x in 0 .. #arr) {				// #arr is excluded

@@ -35,6 +35,7 @@ expr
     : ident=IDENT                   # identExpr
     | value=literal                 # literalExpr
     | LPAREN value=expr RPAREN      # parenExpr
+    | target=expr LBRACK index=expr RBRACK  # indexAccessExpr
     | BANG value=expr               # notExpr
     | SUB value=expr                # negationExpr
     | left=expr MOD right=expr      # moduloExpr
