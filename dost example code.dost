@@ -21,9 +21,9 @@ arr = [5 int : 45, 3, 1, 4, 0]  	// array of size 5 with values
 arr = [5 int :: i * 2 ] 			// array of size 5 with an expression generating values, i is index
 var length = #arr 					// #arr evaluate to size of arr
 var first = arr[0]
-var last = arr[-1]
-// var error = arr[1000]            // Runtime error since index is out of bounds
-// var error = arr[-1000]           // Runtime error since index is out of bounds
+var last = arr[length - 1]
+// var error = arr[100]             // Runtime error since index is out of bounds
+// var error = arr[-1]              // Runtime error since index is out of bounds
 
 arr[5] = foo(first)
 

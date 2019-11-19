@@ -4,8 +4,8 @@ package dk.eastvillage.dost.interpreter
 import java.util.*
 import kotlin.collections.HashMap
 
-class UndeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' was undefined!")
-class RedeclaredSymbol(symbol: String) : InterpretRuntimeException("'$symbol' already declared!")
+class UndeclaredSymbol(symbol: String) : InterpreterException("'$symbol' was undefined!")
+class RedeclaredSymbol(symbol: String) : InterpreterException("'$symbol' already declared!")
 
 class ArrayPointer(val addrToSize: Int, val addrToValues: Int)
 

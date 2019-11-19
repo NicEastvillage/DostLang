@@ -18,11 +18,7 @@ fun main(args: Array<String>) {
                 |for (i in 0..5) {
                 |   ar[i] = i
                 |}
-                |print "Array: ar = " + ar
-                |print "Array size: ar[-1] = " + ar[-1]
-                |print "Array 'pointer': ar[5] = " + ar[5]
-                |print "for loop's i: ar[6] = " + ar[6]
-                |print "Unknown: ar[7] = " + ar[7]
+                |print "Array: " + ar
             """.trimMargin()
             val pretty = args.size == 2 && args[1] == "pretty"
             tryCompile(

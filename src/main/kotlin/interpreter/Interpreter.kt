@@ -1,6 +1,7 @@
 package dk.eastvillage.dost.interpreter
 
 import dk.eastvillage.dost.CompilationInfo
+import dk.eastvillage.dost.SourceContext
 import dk.eastvillage.dost.ast.*
 import dk.eastvillage.dost.ast.ForLoopStepDirection.*
 import dk.eastvillage.dost.ast.Operators.ADD
@@ -20,10 +21,18 @@ import dk.eastvillage.dost.contextual.*
 import kotlin.AssertionError
 
 
-open class InterpretRuntimeException(msg: String) : RuntimeException(msg)
+/** Exception thrown by the interpreter when something is wrong in the interpreter */
+open class InterpreterException(msg: String) : RuntimeException(msg)
 
-class InterpreterVisitException(node: Any) : InterpretRuntimeException("${node.javaClass} should not be visited.")
+class InterpreterVisitException(node: Any) : InterpreterException("${node.javaClass} should not be visited.")
 
+/** Errors that happen at runtime while executing the user's script */
+open class ExecutionException(val sctx: SourceContext?, val mgs: String) : RuntimeException()
+
+class OutOfBoundsException(sctx: SourceContext?, index: Int, size: Int) : ExecutionException(
+    sctx,
+    "Index out of bounds. Index was $index but size of array was $size."
+)
 
 object RuntimeErrorValue
 
@@ -34,11 +43,19 @@ class Interpreter(
     private val memory: Memory = Memory()
 
     fun start(startNode: Node) {
-        memory.pushStack()
-        memory.openScope()
-        visit(startNode, Unit)
-        memory.closeScope()
-        memory.popStack()
+        try {
+            memory.pushStack()
+            memory.openScope()
+            visit(startNode, Unit)
+            memory.closeScope()
+            memory.popStack()
+        } catch (e: ExecutionException) {
+            if (e.sctx == null) {
+                info.settings.stderr.println("RuntimeError: ${e.mgs}")
+            } else {
+                info.settings.stdout.println("RuntimeError at ${e.sctx.position()}: ${e.mgs}")
+            }
+        }
     }
 
     override fun visit(node: StmtBlock, data: Unit): Any {
@@ -74,7 +91,10 @@ class Interpreter(
                     }
                     val offset = visit(lvi.expr, Unit) as Int
                     // First value of the array is the size
-                    // TODO Bounds check
+                    val size = memory[addr] as Int
+                    if (offset < 0 || size <= offset) {
+                        throw OutOfBoundsException(lvi.sctx, offset, size)
+                    }
                     addr + offset + 1
                 }
                 is LValueVariable -> (memory.get(lvi.variable.spelling) as ArrayPointer).addrToSize // Get address of array (pointer)
@@ -226,7 +246,7 @@ class Interpreter(
             }
         }
 
-        throw InterpretRuntimeException("Unknown operator found: '${node.operator.spelling}' for type ${node.type}")
+        throw InterpreterException("Unknown operator found: '${node.operator.spelling}' for type ${node.type}")
     }
 
     override fun visit(node: NotExpr, data: Unit): Any {
@@ -241,7 +261,10 @@ class Interpreter(
     override fun visit(node: IndexAccessExpr, data: Unit): Any {
         val array = visit(node.arrayExpr, data) as ArrayPointer
         val index = visit(node.indexExpr, data) as Int
-        // TODO Bounds check
+        val size = memory[array.addrToSize] as Int
+        if (index < 0 || size <= index) {
+            throw OutOfBoundsException(node.sctx, index, size)
+        }
         return memory[array.addrToValues + index]
     }
 
